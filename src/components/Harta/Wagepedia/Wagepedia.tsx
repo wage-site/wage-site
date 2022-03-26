@@ -1,7 +1,3 @@
-import * as React from "react";
-import { useState, useEffect, Fragment } from "react";
-
-import { Tab } from "@headlessui/react";
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
@@ -29,7 +25,7 @@ function Wagepedia({
             className=" text-white flex flex-row justify-center items-center space-x-1.5 bg-gray-900 px-1.5 bg-opacity-50 hover:bg-opacity-75 transition-all duration-200 rounded-full py-0.5"
           >
             <FontAwesomeIcon icon={faCircleXmark} className="h-4 w-4" />
-            <span className="pb-0.5 text-sm">Inchide</span>
+            <span className="text-sm">Inchide</span>
           </button>
         </div>
       </div>

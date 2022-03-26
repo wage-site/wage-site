@@ -12,14 +12,13 @@ import { useWindowSize } from "../../../lib/hooks";
 
 import "./Harta.css";
 import axios from "axios";
-import { Popover, Transition } from "@headlessui/react";
+import { Transition } from "@headlessui/react";
 import { getUnit, calcApprox } from "../../../lib/harta/sensorUtils";
 import {
   faArrowRightToBracket,
   faCircleInfo,
   faCircleNotch,
   faCircleXmark,
-  faHouseChimney,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Link } from "react-router-dom";
@@ -220,7 +219,7 @@ function Harta() {
           >
             <FontAwesomeIcon
               icon={faArrowRightToBracket}
-              className="h-3.5 w-3.5 rotate-180 mt-[2px]"
+              className="h-3.5 w-3.5 rotate-180"
             />
             <span>Inapoi Acasa</span>
           </Link>
@@ -230,10 +229,7 @@ function Harta() {
             }}
             className="flex flex-row justify-center items-center space-x-1.5 px-2.5 py-0.5 bg-gray-900 bg-opacity-50 hover:bg-opacity-75 transition-all duration-300 rounded-full text-white"
           >
-            <FontAwesomeIcon
-              icon={faCircleInfo}
-              className="h-3.5 w-3.5 mt-[2px]"
-            />
+            <FontAwesomeIcon icon={faCircleInfo} className="h-3.5 w-3.5" />
             <span>Wagepedia</span>
           </button>
         </div>
@@ -258,7 +254,7 @@ function Harta() {
                     icon={faCircleNotch}
                     className="animate-spin"
                   />
-                  <span className="pb-0.5">Loading...</span>
+                  <span>Loading...</span>
                 </div>
               ) : (
                 menuData && (
@@ -284,7 +280,7 @@ function Harta() {
                                 icon={faCircleXmark}
                                 className="h-4 w-4"
                               />
-                              <span className="pb-0.5 text-sm">Inchide</span>
+                              <span className="text-sm">Inchide</span>
                             </button>
                           </div>
                         </div>

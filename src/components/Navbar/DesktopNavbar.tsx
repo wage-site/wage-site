@@ -8,8 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 import { ArrowCircleRightIcon } from "@heroicons/react/outline";
 
-import * as React from "react";
-import { useState, useEffect, Fragment } from "react";
+import { Fragment } from "react";
 
 import { Link } from "react-router-dom";
 
