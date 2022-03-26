@@ -1,22 +1,16 @@
-interface MainButtonProps {
-  isHref?: boolean;
-  isLink?: boolean;
-  href?: string;
-  onClick?: any;
-  to?: string;
-  children?: any;
-  type:
-    | "primary"
-    | "secondary"
-    | "success"
-    | "danger"
-    | "warning"
-    | "info"
-    | "light"
-    | "dark";
-  className?: string;
-}
+type ButtonTypes =
+  | "primary"
+  | "secondary"
+  | "success"
+  | "danger"
+  | "warning"
+  | "info"
+  | "light"
+  | "dark";
 
+type Styles = {
+  [key in ButtonTypes]?: string;
+};
 interface ButtonProps {
   isHref?: boolean;
   isLink?: boolean;
@@ -24,5 +18,6 @@ interface ButtonProps {
   onClick?: any;
   to?: string;
   children?: any;
+  type: ButtonTypes;
   className?: string;
 }

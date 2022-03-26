@@ -1,8 +1,8 @@
 import * as React from "react";
 import { useState, useEffect } from "react";
 
-function Home() {
+function Blog() {
   return <div></div>;
 }
 
-export default Home;
+export default Blog;
