@@ -1,15 +1,19 @@
-import Navbar from "../../components/Navbar";
+import { lazy, Suspense } from "react";
 
 function Home() {
+  const Navbar = lazy(() => import("../../components/Navbar"));
+
   return (
-    <>
-      <div className="md:hidden block">
-        <Navbar type="mobile" />
+    <Suspense fallback={<div className="bg-gray-100"></div>}>
+      <div className="h-full w-full flex flex-col bg-gray-100">
+        <Navbar />
+        <div className="h-96 w-full flex flex-col justify-center items-center">
+          <div>
+            <div className="rounded-lg"></div>
+          </div>
+        </div>
       </div>
-      <div className="md:block hidden">
-        <Navbar type="desktop" />
-      </div>
-    </>
+    </Suspense>
   );
 }
 

@@ -40,13 +40,10 @@ export function getUnit(sensor: string) {
 export function calcApprox([...values]: Array<
   number | undefined | null
 >): number {
-  let sum: number = 0;
-  let undefineds: number = 0;
-  let val: number;
-  values.forEach((value) => {
-    if (value != undefined && value != null) sum += value;
-    else undefineds++;
+  let arr = values.filter((x) => {
+    return x != null || x != undefined;
   });
-  val = sum / (values.length - undefineds);
-  return parseInt(String(val).substring(0, 2));
+  let sum = arr.reduce((total, x) => Number(total) + Number(x));
+  let fin = Number(sum) / arr.length;
+  return parseInt(String(fin));
 }

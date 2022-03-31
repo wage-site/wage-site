@@ -16,6 +16,21 @@ interface AJAXSensor {
   userid: string;
 }
 
+interface AJAXSensorData {
+  altitude: number;
+  humidity: number;
+  latitude: number;
+  longitude: number;
+  pm1: number;
+  pm10: number;
+  pm25: number;
+  gas1: number;
+  co2: number;
+  pressure: number;
+  temperature: number;
+  time: number;
+  timelocal: number;
+}
 interface Sensor {
   id: string;
   name: string;
@@ -28,6 +43,7 @@ interface SensorData {
   name: string | null | undefined;
   picture: string | null | undefined;
   gas1: number | null | undefined;
+  co2: number | null | undefined;
   humidity: number | null | undefined;
   temperature: number | null | undefined;
   latitude: number | null | undefined;
