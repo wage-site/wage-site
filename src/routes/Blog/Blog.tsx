@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { getFirestore } from "firebase/firestore";
 
 function Blog() {
-  const [posts, setPosts] = useState([]);
+  const db = getFirestore();
 
-  useEffect(() => {});
   return <div>Blog</div>;
 }
 

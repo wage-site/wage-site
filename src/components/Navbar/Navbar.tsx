@@ -2,7 +2,7 @@ import { Disclosure, Menu, Popover, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { Link, useLocation } from "react-router-dom";
 import { faLeaf } from "@fortawesome/free-solid-svg-icons";
-import { Fragment, lazy, Suspense } from "react";
+import { Fragment } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function classNames(...classes: string[]) {
@@ -122,25 +122,25 @@ function Navbar() {
                         </>
                       )}
                     </Popover>
-                    {navigation.map((item) => (
-                      <>
-                        {item.displayOnDesktop && (
-                          <Link
-                            key={item.name}
-                            to={item.href}
-                            className={classNames(
-                              item.current
-                                ? "border-b-2 border-green-500 text-gray-900 pt-[calc(0.5rem+2px)]"
-                                : "text-gray-300 border-gray-300 hover:border-green-500 border-b-0 hover:border-b-2 hover:pt-[calc(0.5rem+2px)] hover:text-gray-900",
-                              "px-3 py-2 border-b-2 text-sm font-medium h-full flex justify-center items-center transition-all duration-100"
-                            )}
-                            aria-current={item.current ? "page" : undefined}
-                          >
-                            {item.name}
-                          </Link>
-                        )}
-                      </>
-                    ))}
+                    {navigation
+                      .filter((x) => {
+                        return x.displayOnDesktop;
+                      })
+                      .map((item) => (
+                        <Link
+                          to={item.href}
+                          key={item.name}
+                          className={classNames(
+                            item.current
+                              ? "border-b-2 border-green-500 text-gray-900 pt-[calc(0.5rem+2px)]"
+                              : "text-gray-300 border-gray-300 hover:border-green-500 border-b-0 hover:border-b-2 hover:pt-[calc(0.5rem+2px)] hover:text-gray-900",
+                            "px-3 py-2 border-b-2 text-sm font-medium h-full flex justify-center items-center transition-all duration-100"
+                          )}
+                          aria-current={item.current ? "page" : undefined}
+                        >
+                          {item.name}
+                        </Link>
+                      ))}
                   </div>
                 </div>
               </div>
