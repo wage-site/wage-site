@@ -4,11 +4,11 @@ import "./index.css";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-// import Home from "./routes/Home";
-// import Page404 from "./routes/404";
-// import Proiecte from "./routes/Proiecte";
+import Main from "./routes/Main";
+import Page404 from "./routes/404";
+import Proiecte from "./routes/Proiecte";
 import Harta from "./routes/Proiecte/Harta";
-// import Blog from "./routes/Blog";
+import Blog from "./routes/Blog";
 
 import "flowbite";
 
@@ -22,7 +22,16 @@ ReactDOM.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Harta />} />
+        <Route path="*" element={<Page404 />} />
+
+        <Route path="/" element={<Main />}>
+          <Route path="/proiecte" element={<Proiecte />} />
+          <Route path="/blog" element={<Blog />}>
+            <Route path=":id" />
+          </Route>
+        </Route>
+
+        <Route path="/proiecte/harta" element={<Harta />} />
       </Routes>
     </BrowserRouter>
   </React.StrictMode>,
