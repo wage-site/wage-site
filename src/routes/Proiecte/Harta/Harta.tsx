@@ -1,19 +1,7 @@
 import {
-  useState,
-  useEffect,
-  useRef,
-  LegacyRef,
-  useCallback,
-  Fragment,
-} from "react";
-
-import mapboxgl, { Map } from "mapbox-gl";
-import { useWindowSize } from "../../../lib/hooks";
-
-import "./Harta.css";
-import axios from "axios";
-import { Transition } from "@headlessui/react";
-import { getUnit, calcApprox } from "../../../lib/harta/sensorUtils";
+  faFacebookSquare,
+  faInstagram,
+} from "@fortawesome/free-brands-svg-icons";
 import {
   faArrowRightToBracket,
   faBook,
@@ -21,22 +9,32 @@ import {
   faCircleXmark,
   faRssSquare,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebookSquare,
-  faInstagram,
-} from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
-import Wagepedia from "../../../components/Harta/Wagepedia";
-
-import hB from "../../../assets/svg/hartaBanner.svg";
-
+import { Disclosure, Transition } from "@headlessui/react";
+import { ChevronRightIcon } from "@heroicons/react/outline";
+import axios from "axios";
 import { Chart as ChartJS, ChartData, registerables } from "chart.js";
-import { Line } from "react-chartjs-2";
 import zoomPlugin from "chartjs-plugin-zoom";
-ChartJS.register(...registerables, zoomPlugin);
-
+import classNames from "classnames";
 import { DateTime } from "luxon";
+import mapboxgl, { Map } from "mapbox-gl";
+import {
+  Fragment,
+  LegacyRef,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { Line } from "react-chartjs-2";
+import hB from "../../../assets/svg/hartaBanner.svg";
+import Wagepedia from "../../../components/Harta/Wagepedia";
+import { calcApprox, getUnit } from "../../../lib/harta/sensorUtils";
+import useDocumentTitle from "../../../lib/hooks/useDocumentTitle";
+import useWindowSize from "../../../lib/hooks/useWindowSize";
+import "./Harta.scss";
+
+ChartJS.register(...registerables, zoomPlugin);
 
 var userid = "7137",
   userkey = "a8e0ed5e1cf288124d1b84cd0c994958";
@@ -45,6 +43,8 @@ mapboxgl.accessToken =
   "pk.eyJ1IjoiZWR5Z3V5IiwiYSI6ImNrbDNoZzB0ZjA0anoydm13ejJ2ZnI1bTUifQ.IAGnqkUNAZULY6QbYCSS7w";
 
 function Harta() {
+  useDocumentTitle("");
+
   const size = useWindowSize();
 
   const [loading, setLoading] = useState(false);
@@ -200,7 +200,7 @@ function Harta() {
         setMenuData({
           name: selectedMenu,
           gas1: gas1,
-          humidity: humidity ? humidity : null,
+          humidity: humidity,
           temperature: temperature
             ? parseInt(temperature.toString().substring(0, 4))
             : null,
@@ -209,12 +209,12 @@ function Harta() {
           pressure: pressure ? pressure : null,
           time: time ? time : null,
           timelocal: timelocal ? timelocal : null,
-          pm1: pm1 ? pm1 : null,
-          pm10: pm10 ? pm10 : null,
-          pm25: pm25 ? pm25 : null,
+          pm1: pm1,
+          pm10: pm10,
+          pm25: pm25,
           date: date,
           picture: sensorPicture,
-          co2: co2 ? co2 : null,
+          co2: co2,
         });
         setLoading(false);
       });
@@ -376,6 +376,162 @@ function Harta() {
     }
   }
 
+  function getQuality(
+    type: string,
+    value: number
+  ): { color: string; message: string } {
+    switch (type) {
+      case "pm1": {
+        if (value >= 0 && value < 12.0)
+          return {
+            color: "border-green-500",
+            message: "Calitatea aerului ideală pentru activități în aer liber.",
+          };
+        else if (value > 12.1 && value < 66)
+          return {
+            color: "border-yellow-500",
+            message:
+              "Nu modificați activitățile obișnuite în aer liber decât dacă aveți simptome cum ar fi tusea și iritația gâtului.",
+          };
+        else if (value > 66 && value < 99)
+          return {
+            color: "border-orange-500",
+            message: "Nesănătos pentru persoanele sensibile",
+          };
+        else if (value > 99 && value < 199)
+          return {
+            color: "border-red-500",
+            message: "Nesanatos pentru toate tipurile de persoane",
+          };
+        else if (value > 200)
+          return {
+            color: "border-black",
+            message: "Riscant pentru toate tipurile de persoane",
+          };
+      }
+      case "pm25": {
+        if (value >= 0 && value < 12.0)
+          return {
+            color: "border-green-500",
+            message: "Calitatea aerului ideală pentru activități în aer liber.",
+          };
+        else if (value > 12.1 && value < 66)
+          return {
+            color: "border-yellow-500",
+            message:
+              "Nu modificați activitățile obișnuite în aer liber decât dacă aveți simptome cum ar fi tusea și iritația gâtului.",
+          };
+        else if (value > 66 && value < 99)
+          return {
+            color: "border-orange-500",
+            message: "Nesănătos pentru persoanele sensibile",
+          };
+        else if (value > 99 && value < 199)
+          return {
+            color: "border-red-500",
+            message: "Nesănătos pentru toate tipurile de persoane",
+          };
+        else if (value > 200)
+          return {
+            color: "border-black",
+            message: "Riscant pentru toate tipurile de persoane",
+          };
+      }
+      case "pm10": {
+        if (value >= 0 && value < 50)
+          return {
+            color: "border-green-500",
+            message: "Calitatea aerului ideală pentru activități în aer liber.",
+          };
+        else if (value > 51 && value < 100)
+          return {
+            color: "border-yellow-500",
+            message:
+              "Nu modificați activitățile obișnuite în aer liber decât dacă aveți simptome cum ar fi tusea și iritația gâtului.",
+          };
+        else if (value > 101 && value < 150)
+          return {
+            color: "border-orange-500",
+            message: "Nesănătos pentru persoanele sensibile",
+          };
+        else if (value > 151 && value < 300)
+          return {
+            color: "border-red-500",
+            message: "Nesanatos pentru toate tipurile de persoane",
+          };
+        else if (value > 300)
+          return {
+            color: "border-black",
+            message: "Riscant pentru toate tipurile de persoane",
+          };
+      }
+      case "co2": {
+        if (value >= 400 && value < 1000)
+          return {
+            color: "border-green-500",
+            message: "Calitatea aerului ideală pentru activități în aer liber.",
+          };
+        else if (value > 1000 && value < 2000)
+          return {
+            color: "border-yellow-500",
+            message: "Nivel asociat cu senzatii de somnolență și aer slab.",
+          };
+        else if (value > 2000 && value < 5000)
+          return {
+            color: "border-orange-500",
+            message:
+              "Nivel asociat cu dureri de cap, somnolență și aer stagnant, învechit și înfundat.",
+          };
+        else if (value > 5000 && value < 40000)
+          return {
+            color: "border-red-500",
+            message:
+              "Condiții de aer neobișnuite în care ar putea fi prezente și niveluri ridicate de alte gaze.",
+          };
+        else if (value > 40000)
+          return {
+            color: "border-black",
+            message:
+              "Acest nivel este imediat dăunător din cauza lipsei de oxigen.",
+          };
+      }
+      case "no2": {
+        if (value >= 0 && value < 50)
+          return {
+            color: "border-green-500",
+            message: "Calitatea aerului ideală pentru activități în aer liber.",
+          };
+        else if (value > 51 && value < 100)
+          return {
+            color: "border-yellow-500",
+            message:
+              "Nu modificați activitățile obișnuite în aer liber decât dacă aveți simptome cum ar fi tusea și iritația gâtului.",
+          };
+        else if (value > 101 && value < 150)
+          return {
+            color: "border-orange-500",
+            message: "Nesănătos pentru persoanele sensibile",
+          };
+        else if (value > 151 && value < 200)
+          return {
+            color: "border-red-500",
+            message: "Nesănătos pentru toate tipurile de persoane",
+          };
+        else if (value > 201)
+          return {
+            color: "border-black",
+            message: "Riscant pentru toate tipurile de persoane",
+          };
+      }
+      default: {
+        return {
+          color: "border-blue-500",
+          message: "Nu s-au inregistrat destule date!",
+        };
+      }
+    }
+  }
+
   return (
     <div className="h-full w-full">
       <div
@@ -398,29 +554,29 @@ function Harta() {
         leaveFrom="opacity-100"
         leaveTo="opacity-0"
       >
-        <div className="absolute bottom-0 sm:top-0 sm:bottom-auto left-0 m-2 flex flex-row sm:flex-col justify-between items-end sm:justify-start sm:items-start w-[calc(100%-1rem)] sm:space-y-2">
-          <button
-            onClick={() => {
-              openTab("wagepedia");
-            }}
-            className="py-2 px-3 bg-gray-800 hover:bg-opacity-75 transition-all duration-300 rounded-full text-white"
-          >
-            <FontAwesomeIcon icon={faBook} className="" />
-          </button>
-          <Link
+        <div className="absolute bottom-0 sm:top-0 sm:bottom-auto left-0 m-2 flex flex-row sm:flex-col justify-between items-end sm:justify-start sm:items-start w-[calc(100%-1rem)] sm:w-min sm:space-y-2">
+          {/* <Link
             to="/"
-            className="py-3 px-4 sm:py-2 sm:px-3 bg-gray-800 hover:bg-opacity-75 transition-all duration-300 rounded-full text-white"
+            className="py-4 px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
           >
             <FontAwesomeIcon
               icon={faArrowRightToBracket}
               className="rotate-180"
             />
-          </Link>
+          </Link> */}
+          <button
+            onClick={() => {
+              openTab("wagepedia");
+            }}
+            className="py-5 px-6 sm:py-4 sm:px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
+          >
+            <FontAwesomeIcon icon={faBook} className="" />
+          </button>
           <button
             onClick={() => {
               openTab("socials");
             }}
-            className="py-2 px-3 bg-gray-800 hover:bg-opacity-75 transition-all duration-300 rounded-full text-white"
+            className="py-4 px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-blac2"
           >
             <FontAwesomeIcon icon={faRssSquare} className="" />
           </button>
@@ -439,42 +595,30 @@ function Harta() {
           leaveTo="-translate-x-64 opacity-0"
         >
           {selectedMenu == "socials" ? (
-            <div className="bg-slate-50 shadow-md m-2 ml-2 rounded-lg flex flex-col space-y-6 z-50 sm:w-[22rem] w-[calc(100%-1rem)] relative top-0 left-0 p-4">
-              <div className="grid grid-cols-3 grid-rows-1 justify-items-center justify-between items-start text-2xl">
-                <div />
-                <span className="text-2xl font-bold pt-4">Socials</span>
-                <div className="flex flex-row justify-end w-full text-white">
-                  <button
-                    onClick={() => {
-                      closeTab();
-                    }}
-                    className="flex flex-row justify-center items-center space-x-1.5 bg-gray-900 pl-1 pr-2 bg-opacity-50 hover:bg-opacity-75 transition-all duration-200 rounded-full py-0.5"
-                  >
-                    <FontAwesomeIcon icon={faCircleXmark} className="h-4 w-4" />
-                    <span className="text-sm">Inchide</span>
-                  </button>
-                </div>
-              </div>
-              <div className="flex flex-col justify-center items-center space-y-2">
-                <div>
-                  <a
-                    href="https://instagram.com/wage_team_cndg"
-                    className="flex flex-row justify-center items-center space-x-1"
-                  >
-                    <FontAwesomeIcon icon={faInstagram} />
-                    <span>Instagram</span>
-                  </a>
-                </div>
-                <div>
-                  <a
-                    href="https://www.facebook.com/wageteam"
-                    className="flex flex-row justify-center items-center space-x-1"
-                  >
-                    <FontAwesomeIcon icon={faFacebookSquare} />
-                    <span>Facebook</span>
-                  </a>
-                </div>
-              </div>
+            <div className="absolute bottom-0 sm:top-0 sm:bottom-auto left-0 m-2 flex flex-row sm:flex-col justify-between items-end sm:justify-start sm:items-start w-[calc(100%-1rem)] sm:space-y-2">
+              <button
+                onClick={() => {
+                  closeTab();
+                }}
+                className="py-4 px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
+              >
+                <FontAwesomeIcon
+                  icon={faArrowRightToBracket}
+                  className="rotate-180"
+                />
+              </button>
+              <a
+                href="https://instagram.com/wage_team_cndg"
+                className="py-5 px-6 sm:py-4 sm:px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
+              >
+                <FontAwesomeIcon icon={faInstagram} className="" />
+              </a>
+              <a
+                href="https://www.facebook.com/wageteam"
+                className="py-4 px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
+              >
+                <FontAwesomeIcon icon={faFacebookSquare} />
+              </a>
             </div>
           ) : selectedMenu == "wagepedia" ? (
             <div className="bg-slate-50 shadow-md h-full m-2 ml-2 rounded-lg flex flex-col z-50 md:w-[42rem] w-[calc(100%-1rem)] relative top-0 left-0">
@@ -492,7 +636,7 @@ function Harta() {
                 prevMenu == "wagepedia"
                   ? "bg-slate-50 shadow-md h-full m-2 ml-2 rounded-lg flex flex-col z-50 md:w-[42rem] w-[calc(100%-1rem)] relative top-0 left-0"
                   : prevMenu == "socials"
-                  ? "bg-slate-50 shadow-md m-2 ml-2 rounded-lg flex flex-col space-y-6 z-50 sm:w-[22rem] w-[calc(100%-1rem)] relative top-0 left-0 p-4"
+                  ? ""
                   : "bg-slate-50 shadow-md h-full m-2 ml-2 rounded-lg flex flex-col z-50 sm:w-96 w-[calc(100%-1rem)] relative top-0 left-0"
               }`}
             ></div>
@@ -589,62 +733,234 @@ function Harta() {
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col justify-between h-full p-4 overflow-y-auto overflow-x-hidden scrollbar-thin space-y-3">
+                    <div className="flex flex-col justify-between h-full p-4 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-200 space-y-3">
                       <div className="flex flex-col space-y-2">
                         <div className="flex flex-row justify-center items-center w-full space-x-2">
                           <span className="mb-[2px]">Particule</span>
                           <div className="w-full h-px bg-black opacity-25 rounded-full" />
                         </div>
                         {menuData.gas1 != null && (
-                          <div className="grid grid-cols-2 grid-rows-1 w-full">
-                            <div className="flex flex-row justify-start text-xl">
-                              NO2
-                            </div>
-                            <div className="flex flex-row justify-end items-center">
-                              {menuData.gas1} {getUnit("gas1")}
-                            </div>
-                          </div>
-                        )}
-                        {menuData.co2 != null && (
-                          <div className="grid grid-cols-2 grid-rows-1 w-full">
-                            <div className="flex flex-row justify-start text-xl">
-                              CO2
-                            </div>
-                            <div className="flex flex-row justify-end items-center">
-                              {menuData.co2} {getUnit("co2")}
-                            </div>
-                          </div>
+                          <Disclosure>
+                            {({ open }) => (
+                              <>
+                                <Disclosure.Button>
+                                  <div className="grid grid-cols-2 grid-rows-1 w-full justify-items-stretch">
+                                    <div className="h-full flex flex-row justify-start items-center space-x-2">
+                                      <ChevronRightIcon
+                                        className={`h-4 w-4  transition-all duration-200 ${
+                                          open ? "rotate-90" : "pt-0.5"
+                                        }`}
+                                      />
+                                      <span className="text-xl">NO2</span>
+                                    </div>
+                                    <div className="flex flex-row justify-end items-center">
+                                      {String(menuData.gas1)} {getUnit("gas1")}
+                                    </div>
+                                  </div>
+                                </Disclosure.Button>
+                                <Transition
+                                  as={Fragment}
+                                  enter="transition duration-500 ease-out"
+                                  enterFrom="scale-y-0 opacity-0 origin-top"
+                                  enterTo="scale-y-100 opacity-100 origin-top"
+                                  leave="transition duration-500 ease-out"
+                                  leaveFrom="scale-y-100 opacity-100 origin-top"
+                                  leaveTo="scale-y-0 opacity-0 origin-top"
+                                >
+                                  {menuData.gas1 != null && (
+                                    <Disclosure.Panel
+                                      className={classNames(
+                                        getQuality("no2", menuData.gas1).color,
+                                        `border-2 rounded-lg p-2 text-sm`
+                                      )}
+                                    >
+                                      {getQuality("no2", menuData.gas1).message}
+                                    </Disclosure.Panel>
+                                  )}
+                                </Transition>
+                              </>
+                            )}
+                          </Disclosure>
                         )}
                         {menuData.pm1 != null && (
-                          <div className="grid grid-cols-2 grid-rows-1 w-full">
-                            <div className="flex flex-row justify-start text-xl">
-                              PM1.0
-                            </div>
-                            <div className="flex flex-row justify-end items-center">
-                              {menuData.pm1} {getUnit("pm10")}
-                            </div>
-                          </div>
+                          <Disclosure>
+                            {({ open }) => (
+                              <>
+                                <Disclosure.Button>
+                                  <div className="grid grid-cols-2 grid-rows-1 w-full justify-items-stretch">
+                                    <div className="h-full flex flex-row justify-start items-center space-x-2">
+                                      <ChevronRightIcon
+                                        className={`h-4 w-4  transition-all duration-200 ${
+                                          open ? "rotate-90" : "pt-0.5"
+                                        }`}
+                                      />
+                                      <span className="text-xl">PM1.0</span>
+                                    </div>
+                                    <div className="flex flex-row justify-end items-center">
+                                      {String(menuData.pm1)} {getUnit("pm10")}
+                                    </div>
+                                  </div>
+                                </Disclosure.Button>
+                                <Transition
+                                  as={Fragment}
+                                  enter="transition duration-500 ease-out"
+                                  enterFrom="scale-y-0 opacity-0 origin-top"
+                                  enterTo="scale-y-100 opacity-100 origin-top"
+                                  leave="transition duration-500 ease-out"
+                                  leaveFrom="scale-y-100 opacity-100 origin-top"
+                                  leaveTo="scale-y-0 opacity-0 origin-top"
+                                >
+                                  {menuData.pm1 != null && (
+                                    <Disclosure.Panel
+                                      className={classNames(
+                                        getQuality("pm1", menuData.pm1).color,
+                                        `border-2 rounded-lg p-2 text-sm`
+                                      )}
+                                    >
+                                      {getQuality("pm1", menuData.pm1).message}
+                                    </Disclosure.Panel>
+                                  )}
+                                </Transition>
+                              </>
+                            )}
+                          </Disclosure>
                         )}
                         {menuData.pm25 != null && (
-                          <div className="grid grid-cols-2 grid-rows-1 w-full">
-                            <div className="flex flex-row justify-start text-xl">
-                              PM2.5
-                            </div>
-                            <div className="flex flex-row justify-end items-center">
-                              {menuData.pm25} {getUnit("pm25")}
-                            </div>
-                          </div>
+                          <Disclosure>
+                            {({ open }) => (
+                              <>
+                                <Disclosure.Button>
+                                  <div className="grid grid-cols-2 grid-rows-1 w-full justify-items-stretch">
+                                    <div className="h-full flex flex-row justify-start items-center space-x-2">
+                                      <ChevronRightIcon
+                                        className={`h-4 w-4  transition-all duration-200 ${
+                                          open ? "rotate-90" : "pt-0.5"
+                                        }`}
+                                      />
+                                      <span className="text-xl">PM2.5</span>
+                                    </div>
+                                    <div className="flex flex-row justify-end items-center">
+                                      {String(menuData.pm25)} {getUnit("pm25")}
+                                    </div>
+                                  </div>
+                                </Disclosure.Button>
+                                <Transition
+                                  as={Fragment}
+                                  enter="transition duration-500 ease-out"
+                                  enterFrom="scale-y-0 opacity-0 origin-top"
+                                  enterTo="scale-y-100 opacity-100 origin-top"
+                                  leave="transition duration-500 ease-out"
+                                  leaveFrom="scale-y-100 opacity-100 origin-top"
+                                  leaveTo="scale-y-0 opacity-0 origin-top"
+                                >
+                                  {menuData.pm25 != null && (
+                                    <Disclosure.Panel
+                                      className={classNames(
+                                        getQuality("pm25", menuData.pm25).color,
+                                        `border-2 rounded-lg p-2 text-sm`
+                                      )}
+                                    >
+                                      {
+                                        getQuality("pm25", menuData.pm25)
+                                          .message
+                                      }
+                                    </Disclosure.Panel>
+                                  )}
+                                </Transition>
+                              </>
+                            )}
+                          </Disclosure>
                         )}
                         {menuData.pm10 != null && (
-                          <div className="grid grid-cols-2 grid-rows-1 w-full">
-                            <div className="flex flex-row justify-start text-xl">
-                              PM10
-                            </div>
-                            <div className="flex flex-row justify-end items-center">
-                              {menuData.pm10} {getUnit("pm10")}
-                            </div>
-                          </div>
+                          <Disclosure>
+                            {({ open }) => (
+                              <>
+                                <Disclosure.Button>
+                                  <div className="grid grid-cols-2 grid-rows-1 w-full justify-items-stretch">
+                                    <div className="h-full flex flex-row justify-start items-center space-x-2">
+                                      <ChevronRightIcon
+                                        className={`h-4 w-4  transition-all duration-200 ${
+                                          open ? "rotate-90" : "pt-0.5"
+                                        }`}
+                                      />
+                                      <span className="text-xl">PM10</span>
+                                    </div>
+                                    <div className="flex flex-row justify-end items-center">
+                                      {String(menuData.pm10)} {getUnit("pm10")}
+                                    </div>
+                                  </div>
+                                </Disclosure.Button>
+                                <Transition
+                                  as={Fragment}
+                                  enter="transition duration-500 ease-out"
+                                  enterFrom="scale-y-0 opacity-0 origin-top"
+                                  enterTo="scale-y-100 opacity-100 origin-top"
+                                  leave="transition duration-500 ease-out"
+                                  leaveFrom="scale-y-100 opacity-100 origin-top"
+                                  leaveTo="scale-y-0 opacity-0 origin-top"
+                                >
+                                  {menuData.pm10 != null && (
+                                    <Disclosure.Panel
+                                      className={classNames(
+                                        getQuality("pm10", menuData.pm10).color,
+                                        `border-2 rounded-lg p-2 text-sm`
+                                      )}
+                                    >
+                                      {
+                                        getQuality("pm10", menuData.pm10)
+                                          .message
+                                      }
+                                    </Disclosure.Panel>
+                                  )}
+                                </Transition>
+                              </>
+                            )}
+                          </Disclosure>
                         )}
+                        {menuData.co2 != null && (
+                          <Disclosure>
+                            {({ open }) => (
+                              <>
+                                <Disclosure.Button>
+                                  <div className="grid grid-cols-2 grid-rows-1 w-full justify-items-stretch">
+                                    <div className="h-full flex flex-row justify-start items-center space-x-2">
+                                      <ChevronRightIcon
+                                        className={`h-4 w-4  transition-all duration-200 ${
+                                          open ? "rotate-90" : "pt-0.5"
+                                        }`}
+                                      />
+                                      <span className="text-xl">CO2</span>
+                                    </div>
+                                    <div className="flex flex-row justify-end items-center">
+                                      {String(menuData.co2)} {getUnit("co2")}
+                                    </div>
+                                  </div>
+                                </Disclosure.Button>
+                                <Transition
+                                  as={Fragment}
+                                  enter="transition duration-500 ease-out"
+                                  enterFrom="scale-y-0 opacity-0 origin-top"
+                                  enterTo="scale-y-100 opacity-100 origin-top"
+                                  leave="transition duration-500 ease-out"
+                                  leaveFrom="scale-y-100 opacity-100 origin-top"
+                                  leaveTo="scale-y-0 opacity-0 origin-top"
+                                >
+                                  {menuData.co2 != null && (
+                                    <Disclosure.Panel
+                                      className={classNames(
+                                        getQuality("co2", menuData.co2).color,
+                                        `border-2 rounded-lg p-2 text-sm`
+                                      )}
+                                    >
+                                      {getQuality("co2", menuData.co2).message}
+                                    </Disclosure.Panel>
+                                  )}
+                                </Transition>
+                              </>
+                            )}
+                          </Disclosure>
+                        )}
+
                         <div className="flex flex-row justify-center items-center w-full space-x-2">
                           <span className="mb-[2px]">Altele</span>
                           <div className="w-full h-px bg-black opacity-25 rounded-full" />
@@ -730,7 +1046,7 @@ function Harta() {
       </div>
       {sensors.map((sensor) => (
         <button
-          className={`marker marker-good ${sensor.active ? "" : "grayscale"}`}
+          className={`marker marker-map ${sensor.active ? "" : "grayscale"}`}
           key={sensor.name}
           id={sensor.id}
           disabled={sensor.active ? false : true}

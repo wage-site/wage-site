@@ -1,0 +1,12 @@
+input:-webkit-autofill {
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+    transition-delay: 9999s;
+    transition-property: background-color, color;
+  }
+}
+@tailwind base;
+@tailwind components;
+@tailwind utilities;

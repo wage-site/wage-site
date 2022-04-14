@@ -1,0 +1,3 @@
+interface TokenDoc {
+  token: string;
+}

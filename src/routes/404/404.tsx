@@ -1,7 +1,9 @@
 import BG from "../../assets/svg/404bg.svg";
 import { Button } from "../../components/Button";
+import useDocumentTitle from "../../lib/hooks/useDocumentTitle";
 
 function Page404() {
+  useDocumentTitle("404");
   return (
     <>
       <img

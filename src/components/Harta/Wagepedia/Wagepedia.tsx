@@ -1,8 +1,7 @@
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
-import wMd from "./wagepedia.md";
 import { Remarkable } from "remarkable";
+import wMd from "./wagepedia.md";
 
 function Wagepedia({
   type,
@@ -13,7 +12,7 @@ function Wagepedia({
 }) {
   var md = new Remarkable();
   return (
-    <div className="p-4 w-full flex flex-col space-y-6 overflow-auto scrollbar-thin h-full">
+    <div className="p-4 w-full flex flex-col space-y-6 overflow-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-200 h-full">
       <div className="grid grid-cols-3 grid-rows-1 justify-items-center justify-between items-start text-2xl h-full">
         <div />
         <span className="text-3xl font-bold pt-4">Wagepedia</span>
