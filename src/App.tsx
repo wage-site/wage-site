@@ -1,43 +1,32 @@
-import { getAuth } from "firebase/auth";
-import { useCallback, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Page404 from "./routes/404";
-import Blog from "./routes/Blog";
-import BlogDelete from "./routes/Blog/BlogDelete";
-import BlogEdit from "./routes/Blog/BlogEdit";
-import BlogNew from "./routes/Blog/BlogNew";
-import BlogPost from "./routes/Blog/BlogPost";
-import Colab from "./routes/Colab";
-import ColabDelete from "./routes/Colab/ColabDelete";
-import ColabEdit from "./routes/Colab/ColabEdit";
-import ColabNew from "./routes/Colab/ColabNew";
-import ColabPost from "./routes/Colab/ColabPost";
-import Home from "./routes/Home";
-import Main from "./routes/Main";
-import Proiecte from "./routes/Proiecte";
+// import Blog from "./routes/Blog";
+// import BlogDelete from "./routes/Blog/BlogDelete";
+// import BlogEdit from "./routes/Blog/BlogEdit";
+// import BlogNew from "./routes/Blog/BlogNew";
+// import BlogPost from "./routes/Blog/BlogPost";
+// import Colab from "./routes/Colab";
+// import ColabDelete from "./routes/Colab/ColabDelete";
+// import ColabEdit from "./routes/Colab/ColabEdit";
+// import ColabNew from "./routes/Colab/ColabNew";
+// import ColabPost from "./routes/Colab/ColabPost";
+// import Home from "./routes/Home";
+// import Main from "./routes/Main";
+// import Proiecte from "./routes/Proiecte";
 import Harta from "./routes/Proiecte/Harta";
-import User from "./routes/User";
-import Login from "./routes/User/Login";
-import Logout from "./routes/User/Logout";
-import Register from "./routes/User/Register";
-import Settings from "./routes/User/Settings";
+// import User from "./routes/User";
+// import Login from "./routes/User/Login";
+// import Logout from "./routes/User/Logout";
+// import Register from "./routes/User/Register";
+// import Settings from "./routes/User/Settings";
 
 function App() {
-  const auth = getAuth();
-  const [user] = useAuthState(auth);
-
-  const [isUser, setIsUser] = useState(false);
-
-  const [, updateState] = useState({});
-  const forceUpdate = useCallback(() => updateState({}), []);
-
   return (
     <BrowserRouter>
       <Routes>
         <Route path="*" element={<Page404 />} />
 
-        <Route path="/" element={<Main />}>
+        {/* <Route path="/" element={<Main />}>
           <Route path="" element={<Home />} />
           <Route path="/proiecte" element={<Proiecte />} />
           <Route path="/blog">
@@ -65,7 +54,7 @@ function App() {
             <Route path="register" element={<Register />} />
             <Route path="settings" element={<Settings />} />
           </Route>
-        </Route>
+        </Route> */}
 
         <Route path="/" element={<Harta />} />
       </Routes>

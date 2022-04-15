@@ -61,7 +61,7 @@ Protejarea naturii nu înseamnă protejarea planetei. Înseamnă asigurarea săn
 
 Prevenirea poluării este o măsură de sănătate publică. Pe termen lung, schimbările climatice amenință însăși existența modului nostru de viață. Aceasta înseamnă pierderea imediată de vieți omenești din cauza valurilor de căldură, a incendiilor forestiere și a inundațiilor, precum și amenințări pe termen mai lung la adresa producției de alimente din cauza schimbării tiparelor meteorologice.
 
-### Ce pot face pentru a imbunatatii calitatea aerului?
+### Ce pot face pentru a imbunatati calitatea aerului?
 
 Deși avem, poate, senzația că nu putem face lucruri mari, atunci când vine vorba despre menținerea și îmbunătățirea calității aerului, sunt o mulțime de pași mici, care, dacă sunt respectați, pot duce la efecte benefice pentru mediul înconjurător și pentru calitatea vieții.
 
@@ -86,5 +86,3 @@ Suntem un grup alcătuit din elevi si profesori, care are ca scop îmbunătăți
 ### Colaboratori
 
 Pentru a aduce acest serviciu de monitorizare la viata am colaborat cu diferite scoli, institutii publice si voluntari care ne-au ajutat sa punem in functiune senzorii.
-
-[Aici gasiti toti oamenii care ne-au ajutat de-a lungul proiectului!](/colab)
