@@ -641,7 +641,7 @@ function Harta() {
               }`}
             ></div>
           ) : (
-            <div className="bg-slate-50 shadow-md h-full m-2 ml-2 rounded-lg flex flex-col z-50 sm:w-96 w-[calc(100%-1rem)] relative top-0 left-0">
+            <div className="bg-slate-50 shadow-md h-full m-2 ml-2 rounded-lg flex flex-col z-50 sm:w-[26rem] w-[calc(100%-1rem)] relative top-0 left-0">
               {loading ? (
                 <div className="flex flex-row h-full w-full justify-center items-center space-x-2">
                   <FontAwesomeIcon
@@ -660,7 +660,7 @@ function Harta() {
                       />
                       <div className="relative p-4 flex flex-col justify-between h-full space-y-5 sm:space-y-6">
                         <div className="flex flex-row justify-between items-center">
-                          <div className="text-xl text-white flex flex-row justify-center items-center space-x-3">
+                          <div className="text-lg text-white flex flex-row justify-center items-center space-x-3">
                             <span>{menuData?.name}</span>
                           </div>
                           <div className="text-white">
