@@ -27,6 +27,7 @@ import {
   useState,
 } from "react";
 import { Line } from "react-chartjs-2";
+import { Link } from "react-router-dom";
 import hB from "../../../assets/svg/hartaBanner.svg";
 import Wagepedia from "../../../components/Harta/Wagepedia";
 import { calcApprox, getUnit } from "../../../lib/harta/sensorUtils";
@@ -533,7 +534,7 @@ function Harta() {
   }
 
   return (
-    <div className="h-full w-full">
+    <div className="h-full w-full font-lato">
       <div
         ref={mapContainer as LegacyRef<HTMLDivElement>}
         style={{
@@ -555,7 +556,7 @@ function Harta() {
         leaveTo="opacity-0"
       >
         <div className="absolute bottom-0 sm:top-0 sm:bottom-auto left-0 m-2 flex flex-row sm:flex-col justify-between items-end sm:justify-start sm:items-start w-[calc(100%-1rem)] sm:w-min sm:space-y-2">
-          {/* <Link
+          <Link
             to="/"
             className="py-4 px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
           >
@@ -563,7 +564,7 @@ function Harta() {
               icon={faArrowRightToBracket}
               className="rotate-180"
             />
-          </Link> */}
+          </Link>
           <button
             onClick={() => {
               openTab("wagepedia");

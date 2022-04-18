@@ -7,6 +7,9 @@ module.exports = {
       screens: {
         short: { raw: "(max-height: 974px)" },
       },
+      fontFamily: {
+        lato: ["Lato", "sans-serif"],
+      },
     },
   },
   plugins: [require("@tailwindcss/typography"), require("tailwind-scrollbar")],
