@@ -20,4 +20,5 @@ interface ButtonProps {
   children?: any;
   type: ButtonTypes;
   className?: string;
+  disabled?: boolean;
 }

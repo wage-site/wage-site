@@ -77,7 +77,7 @@ function Navbar() {
                   </Link>
                   <div className="hidden sm:block sm:ml-6 h-full">
                     <div className="flex space-x-4 h-full justify-center items-center">
-                      <Popover className="relative h-full">
+                      <Popover className="relative h-full z-50">
                         {({ open }) => (
                           <>
                             <Popover.Button

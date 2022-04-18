@@ -1,7 +1,6 @@
+import cln from "classnames";
 import _ from "lodash";
 import { Link } from "react-router-dom";
-
-import cln from "classnames";
 
 function Button({
   isHref = false,
@@ -12,6 +11,7 @@ function Button({
   children,
   type,
   className,
+  disabled = false,
 }: ButtonProps) {
   const styles: Styles = {
     primary:
@@ -47,6 +47,7 @@ function Button({
       ) : (
         <button
           onClick={onClick}
+          disabled={disabled}
           className={cln(mainStyle, _.get(styles, type), className)}
         >
           {children}
