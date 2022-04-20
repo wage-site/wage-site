@@ -8,7 +8,7 @@ module.exports = {
         short: { raw: "(max-height: 974px)" },
       },
       fontFamily: {
-        lato: ["Lato", "sans-serif"],
+        custom: ["Lato", "Source Sans Pro", "sans-serif"],
       },
     },
   },

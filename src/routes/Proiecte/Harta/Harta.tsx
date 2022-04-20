@@ -44,7 +44,7 @@ mapboxgl.accessToken =
   "pk.eyJ1IjoiZWR5Z3V5IiwiYSI6ImNrbDNoZzB0ZjA0anoydm13ejJ2ZnI1bTUifQ.IAGnqkUNAZULY6QbYCSS7w";
 
 function Harta() {
-  useDocumentTitle("");
+  useDocumentTitle("Harta");
 
   const size = useWindowSize();
 
@@ -534,7 +534,7 @@ function Harta() {
   }
 
   return (
-    <div className="h-full w-full font-lato">
+    <div className="h-full w-full font-custom">
       <div
         ref={mapContainer as LegacyRef<HTMLDivElement>}
         style={{
