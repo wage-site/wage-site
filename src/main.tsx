@@ -1,3 +1,4 @@
+import { enableIndexedDbPersistence, getFirestore } from "firebase/firestore";
 import { Settings } from "luxon";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { createRoot } from "react-dom/client";
@@ -6,6 +7,7 @@ import "./index.scss";
 import { createFirebaseApp, firebaseConfig } from "./lib/firebase";
 
 createFirebaseApp(firebaseConfig);
+enableIndexedDbPersistence(getFirestore());
 
 Settings.defaultLocale = "ro";
 
