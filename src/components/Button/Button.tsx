@@ -8,6 +8,7 @@ function Button({
   href = "",
   onClick,
   to = "",
+  replace = false,
   children,
   type,
   className,
@@ -40,6 +41,7 @@ function Button({
       ) : isLink ? (
         <Link
           to={to}
+          replace={replace}
           className={cln(mainStyle, _.get(styles, type), className)}
         >
           {children}

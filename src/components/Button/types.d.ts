@@ -17,6 +17,7 @@ interface ButtonProps {
   href?: string;
   onClick?: any;
   to?: string;
+  replace?: boolean;
   children?: any;
   type: ButtonTypes;
   className?: string;

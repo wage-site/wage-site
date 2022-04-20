@@ -9,7 +9,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Disclosure, Menu, Popover, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { getAuth } from "firebase/auth";
-import { Fragment } from "react";
+import { doc, getDoc, getFirestore } from "firebase/firestore";
+import { Fragment, useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { Link, useLocation } from "react-router-dom";
 
@@ -19,9 +20,22 @@ function classNames(...classes: string[]) {
 
 function Navbar() {
   const auth = getAuth();
+  const db = getFirestore();
   const [user, userLoading] = useAuthState(auth);
+  const [username, setUsername] = useState("");
 
   const location = useLocation();
+
+  useEffect(() => {
+    if (!userLoading && user) {
+      getDoc(doc(db, "users", user.uid)).then((snap) => {
+        if (snap.exists()) {
+          const data = snap.data();
+          setUsername(data.username);
+        }
+      });
+    }
+  }, [user]);
 
   const navigation = [
     {
@@ -45,10 +59,10 @@ function Navbar() {
   ];
 
   return (
-    <Disclosure as="nav" className="space-y-2">
+    <Disclosure as="nav" className="space-y-2 shadow-md shadow-neutral-200">
       {({ open }) => (
         <>
-          <div className="w-full px-2 sm:px-6 lg:px-8 shadow-sm bg-white">
+          <div className="w-full px-2 sm:px-6 lg:px-8 bg-white">
             <div className="relative flex items-center justify-between h-16">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white hover:bg-gray-100 transition-all duration-200">
@@ -182,6 +196,14 @@ function Navbar() {
                       leaveTo="transform opacity-0 scale-95"
                     >
                       <Menu.Items className="absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                        <div className="p-3 space-y-0.5 flex flex-col justify-center items-start">
+                          <div className="font-base text-sm">
+                            {user.displayName}
+                          </div>
+                          <div className="font-light text-xs opacity-50">
+                            @{username}
+                          </div>
+                        </div>
                         <div className="px-1 py-1 space-y-0.5 flex flex-col justify-center items-center">
                           <Link
                             to="/user"
