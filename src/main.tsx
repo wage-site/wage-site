@@ -1,7 +1,6 @@
 import { Settings } from "luxon";
 import "mapbox-gl/dist/mapbox-gl.css";
-import React from "react";
-import ReactDOM from "react-dom";
+import { createRoot } from "react-dom/client";
 import App from "./App";
 import "./index.scss";
 import { createFirebaseApp, firebaseConfig } from "./lib/firebase";
@@ -16,9 +15,6 @@ if (window.location.pathname == "/proiecte/harta") {
   document.getElementById("root")?.classList.add("overflow-hidden");
 }
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById("root")
-);
+const container = document.getElementById("root");
+const root = createRoot(container!);
+root.render(<App />);

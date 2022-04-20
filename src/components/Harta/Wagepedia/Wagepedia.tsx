@@ -1,6 +1,6 @@
 import { faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Remarkable } from "remarkable";
+import ReactMarkdown from "react-markdown";
 import wMd from "./wagepedia.md";
 
 function Wagepedia({
@@ -10,7 +10,6 @@ function Wagepedia({
   type?: "mobile" | "desktop";
   closeFunc: any;
 }) {
-  var md = new Remarkable();
   return (
     <div className="p-4 w-full flex flex-col space-y-6 overflow-auto scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-200 h-full">
       <div className="grid grid-cols-3 grid-rows-1 justify-items-center justify-between items-start text-2xl h-full">
@@ -29,8 +28,8 @@ function Wagepedia({
         </div>
       </div>
       <div className="w-full flex flex-col justify-center items-center py-4">
-        <div
-          dangerouslySetInnerHTML={{ __html: md.render(wMd) }}
+        <ReactMarkdown
+          children={wMd}
           className="prose overflow-auto prose-green"
         />
       </div>
