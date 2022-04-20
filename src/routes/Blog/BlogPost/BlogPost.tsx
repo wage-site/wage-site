@@ -1,5 +1,6 @@
 import {
   faAngleLeft,
+  faAngleRight,
   faCircleNotch,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
@@ -13,6 +14,7 @@ import { Link, useParams } from "react-router-dom";
 import ImageViewer from "react-simple-image-viewer";
 import Sidebar from "../../../components/Blog/Sidebar";
 import { BlogPost } from "../types";
+import "./BlogPost.scss";
 
 function BlogPostPage() {
   const [loading, setLoading] = useState(true);
@@ -142,7 +144,7 @@ function BlogPostPage() {
             <Link
               to="/blog"
               replace
-              className="flex flex-row justify-center items-center space-x-2 text-sm px-3 py-1 border-2 rounded-lg border-lime-500 text-lime-500 hover:text-white hover:bg-lime-500 tranition-all duration-200"
+              className="flex flex-row justify-center items-center space-x-2 text-sm px-3 py-1 border-2 rounded-lg border-lime-500 text-lime-500 hover:text-white hover:bg-lime-500 transition-all duration-200"
             >
               <FontAwesomeIcon icon={faAngleLeft} />
               <span className="mb-px">Inapoi</span>
@@ -155,7 +157,12 @@ function BlogPostPage() {
           <ImageViewer
             src={postData?.imageUrls}
             currentIndex={currentImage}
-            disableScroll={false}
+            disableScroll={true}
+            leftArrowComponent={<FontAwesomeIcon icon={faAngleLeft} />}
+            rightArrowComponent={<FontAwesomeIcon icon={faAngleRight} />}
+            closeComponent={
+              <FontAwesomeIcon icon={faCircleXmark} className="h-6 w-6 p-4" />
+            }
             closeOnClickOutside={true}
             onClose={closeImageViewer}
           />

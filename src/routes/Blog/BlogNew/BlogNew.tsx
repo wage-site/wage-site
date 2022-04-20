@@ -2,6 +2,7 @@ import {
   faCircleArrowLeft,
   faCircleNotch,
   faCirclePlus,
+  faCircleXmark,
   faCloudArrowUp,
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
@@ -15,8 +16,8 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
-import markdownToTxt from "markdown-to-txt";
-import { useEffect, useState } from "react";
+import markdownToTxt from "markdown-to-text";
+import { LegacyRef, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link, useNavigate } from "react-router-dom";
 import { ScrollSync, ScrollSyncNode } from "scroll-sync-react";
@@ -38,6 +39,9 @@ function BlogNew() {
       setUser(user);
     }
   });
+
+  const imagesInputRef = useRef<HTMLInputElement>();
+  const [imgIKey, setImgIKey] = useState("");
 
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -121,6 +125,20 @@ function BlogNew() {
     };
   }, [errorMsg]);
 
+  useEffect(() => {
+    if (!imagesInputRef.current) return;
+    imagesInputRef.current.value = "";
+    setImgIKey(Math.random().toString(36));
+  }, [images]);
+
+  function removeImage(index: number) {
+    setImages(
+      images?.filter((val, idx) => {
+        return idx != index;
+      })
+    );
+  }
+
   return (
     <div className="h-full w-full p-4 scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-300 overflow-y-auto overflow-x-hidden flex flex-col space-y-4 justify-start items-center">
       <div className="w-full max-w-5xl flex flex-row justify-between items-center h-fit">
@@ -169,6 +187,7 @@ function BlogNew() {
             </label>
             <input
               id="file-upload"
+              ref={imagesInputRef as LegacyRef<HTMLInputElement>}
               type="file"
               className="hidden"
               accept="image/png, image/jpeg"
@@ -242,6 +261,8 @@ function BlogNew() {
                   <FontAwesomeIcon icon={faCirclePlus} />
                 </label>
                 <input
+                  ref={imagesInputRef as React.LegacyRef<HTMLInputElement>}
+                  key={imgIKey}
                   id="file-upload2"
                   type="file"
                   className="hidden"
@@ -257,15 +278,21 @@ function BlogNew() {
               </div>
               {images &&
                 images.map((image, index) => (
-                  <div
+                  <button
                     className="relative w-28 h-28 group rounded-lg"
                     key={`image${index}`}
+                    onClick={() => {
+                      removeImage(index);
+                    }}
                   >
                     <img
                       src={URL.createObjectURL(image)}
                       className="w-full h-full absolute top-0 left-0 object-cover rounded-lg"
                     />
-                  </div>
+                    <div className="absolute w-full h-full top-0 left-0 rounded-lg flex flex-col justify-center items-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-all duration-200">
+                      <FontAwesomeIcon icon={faCircleXmark} />
+                    </div>
+                  </button>
                 ))}
             </div>
           </div>
