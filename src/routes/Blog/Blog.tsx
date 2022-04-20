@@ -1,118 +1,245 @@
-import { getFirestore } from "firebase/firestore";
+import {
+  faArrowDown,
+  faArrowRight,
+  faCircleNotch,
+  faCirclePlus,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { getAuth } from "firebase/auth";
+import {
+  collection,
+  getDocs,
+  getFirestore,
+  limit,
+  orderBy,
+  query,
+  startAfter,
+} from "firebase/firestore";
+import { getStorage } from "firebase/storage";
+import _ from "lodash";
+import { DateTime } from "luxon";
+import { useCallback, useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { Link } from "react-router-dom";
+import Sidebar from "../../components/Blog/Sidebar";
 import useDocumentTitle from "../../lib/hooks/useDocumentTitle";
-import "./Blog.css";
+import { BlogPagePost } from "./types";
 
 function Blog() {
+  const [loading, setLoading] = useState(false);
+  const [moreLoading, setMoreLoading] = useState(false);
+
+  const [, updateState] = useState({});
+  const forceUpdate = useCallback(() => updateState({}), []);
+
+  const auth = getAuth();
+  const [user] = useAuthState(auth);
+
   useDocumentTitle("Blog");
 
   const db = getFirestore();
+  const storage = getStorage();
+
+  const [posts, setPosts] = useState<BlogPagePost[]>([]);
+  const [lastKey, setLastKey] = useState("");
+
+  async function nextBatch() {
+    setMoreLoading(true);
+    const q = query(
+      collection(db, "blog"),
+      orderBy("dateUploaded", "desc"),
+      startAfter(lastKey),
+      limit(5)
+    );
+    const querySnap = await getDocs(q);
+    let psts: BlogPagePost[] = [];
+    querySnap.forEach(async function (post) {
+      let { author, title, content, dateUploaded, bannerUrl, contentPreview } =
+        post.data();
+      let date = DateTime.fromJSDate(dateUploaded.toDate()).toLocaleString(
+        DateTime.DATE_FULL
+      );
+      setLastKey(dateUploaded);
+      psts.push({
+        id: post.id,
+        author,
+        title,
+        content,
+        contentPreview,
+        dateUploaded: date,
+        bannerUrl,
+      });
+      forceUpdate();
+    });
+
+    setPosts(posts.concat(psts));
+    forceUpdate();
+    setMoreLoading(false);
+  }
+
+  useEffect(() => {
+    (async function () {
+      setLoading(true);
+      const q = query(
+        collection(db, "blog"),
+        orderBy("dateUploaded", "desc"),
+        limit(5)
+      );
+      const querySnap = await getDocs(q);
+      let psts: BlogPagePost[] = [];
+      querySnap.forEach(async function (post) {
+        let {
+          author,
+          title,
+          content,
+          dateUploaded,
+          bannerUrl,
+          contentPreview,
+        } = post.data();
+        let date = DateTime.fromJSDate(dateUploaded.toDate()).toLocaleString(
+          DateTime.DATE_FULL
+        );
+        setLastKey(dateUploaded);
+        psts.push({
+          id: post.id,
+          author,
+          title,
+          content,
+          contentPreview,
+          dateUploaded: date,
+          bannerUrl,
+        });
+        forceUpdate();
+      });
+
+      setPosts(psts);
+      forceUpdate();
+      setLoading(false);
+    })();
+  }, []);
 
   return (
-    <div className="h-full w-full scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-300 overflow-y-auto overflow-x-hidden flex flex-col mx-auto">
-      Lorem ipsum dolor sit amet consectetur adipisicing elit. Mollitia
-      consequatur ipsam quo. Labore, et amet. Hic aut sequi omnis dolore libero
-      vitae error necessitatibus iure placeat beatae iste odio numquam, expedita
-      nisi at eius est enim quis iusto fuga magni aliquid. Nulla voluptatem
-      accusamus sequi ipsam dolores sint voluptatibus rerum hic id consequuntur.
-      Ratione quidem aut eos minus incidunt deserunt obcaecati mollitia, ex ipsa
-      atque distinctio saepe ad, dolorum optio illum. Quo, ullam rem ex ut error
-      quaerat cumque deleniti atque cupiditate beatae delectus cum fuga, placeat
-      architecto, repellendus recusandae facere obcaecati facilis. Consectetur,
-      earum suscipit! Neque impedit eligendi velit optio vero aliquam quam
-      minus, quos maxime voluptas enim saepe atque obcaecati quia
-      exercitationem, veniam quis quo eum? Rerum aut aliquam deserunt, ad sunt
-      tenetur quasi eum. Aperiam natus quis repellat sint delectus corporis
-      tempora, id neque veniam dicta nemo aut rerum! Asperiores omnis deserunt
-      ducimus autem animi porro illo quibusdam rerum quasi non molestias
-      assumenda molestiae esse impedit, commodi voluptates incidunt ad? Odit
-      exercitationem quam nesciunt aut iure eum distinctio aliquam, sunt non ex
-      magni omnis quia fugit officiis eaque totam repellendus? Labore voluptatem
-      nam sit amet ad quae consequatur, totam veritatis laborum voluptatum iste
-      soluta nisi delectus possimus cumque mollitia molestiae perspiciatis
-      ullam? Laudantium, cupiditate sit tempore harum consectetur repellendus
-      odit tenetur accusantium non sequi necessitatibus, rerum maiores, vel
-      mollitia quae culpa hic sint ipsam. Distinctio a vel quod nesciunt
-      voluptates illo amet odit qui pariatur illum! Itaque sed est, ratione illo
-      voluptatum impedit fugit, alias possimus debitis sequi inventore sapiente
-      dolorum amet expedita, distinctio iure corporis porro optio eum tempore
-      maiores maxime? Alias vero illo sit ullam cum nesciunt quae, ducimus quis
-      error dolorum quas. Est debitis nemo, libero eligendi similique magnam,
-      possimus maiores quae placeat accusantium corrupti dolores nisi unde nam
-      soluta fuga ipsa mollitia pariatur. Expedita veniam enim mollitia
-      doloremque exercitationem odio repudiandae nam nulla quo velit inventore
-      totam reprehenderit voluptatibus alias nihil animi quam nisi officia
-      eveniet et itaque ipsam, laudantium ex. Saepe corrupti iusto perferendis
-      et fugit porro labore ab earum veritatis excepturi quia cum, distinctio,
-      iste harum fuga nulla. Odio incidunt illum consequuntur sint voluptatem
-      corporis libero, tempora eveniet sed itaque voluptate quas quis? Cumque
-      laudantium amet quibusdam ducimus nam magnam ullam alias, laboriosam rem
-      iure eos eius ut cum, illum assumenda itaque maiores repellat eveniet
-      enim. Deserunt veniam dolorem maxime doloremque nihil obcaecati.
-      Recusandae unde adipisci quos optio libero ratione, modi odio? Obcaecati
-      nisi porro repudiandae, ratione dolorem eveniet, inventore ipsum eligendi
-      adipisci dolorum, nobis nam saepe ullam! Ad, quia. Eos necessitatibus,
-      minima molestiae neque nulla autem, officia nostrum, reiciendis id odit
-      quae! Facilis sequi tempore eos. Facilis recusandae quos in consectetur
-      incidunt accusantium quod. Deleniti nesciunt rerum veritatis, dolore
-      voluptatibus aperiam eligendi sint eaque debitis tempore ea voluptate
-      aliquid impedit quia voluptatum amet molestiae qui nemo perspiciatis
-      suscipit laborum mollitia id doloribus quas. Distinctio vitae esse natus
-      illum suscipit assumenda. Labore, ut. Reiciendis neque ad voluptate
-      assumenda consequatur quia qui, minus maiores corrupti delectus aut ab
-      cumque, maxime commodi harum vero! Doloribus expedita, fuga ipsa dolores
-      placeat fugit dolorem incidunt temporibus ex nesciunt id sed, pariatur
-      aspernatur corporis nobis quis sint reprehenderit esse omnis voluptate.
-      Soluta iure obcaecati exercitationem, temporibus dolorum dolor veritatis
-      iste rerum dignissimos ex animi rem necessitatibus similique excepturi
-      numquam sint suscipit aut, porro, aliquid laboriosam dolores delectus
-      totam neque? Vel, dignissimos eligendi voluptate laudantium alias eos
-      dolorem totam corporis veniam minima veritatis esse ullam, repellendus
-      quidem cumque! Optio earum sequi, ut quia libero unde aspernatur
-      assumenda, atque, amet accusantium praesentium corporis placeat harum
-      laborum vero voluptatum quis quasi mollitia! Error numquam, rem dolores
-      ratione expedita quidem in quae deserunt quisquam hic, blanditiis mollitia
-      culpa explicabo dolorum. Aliquid explicabo assumenda velit corrupti!
-      Possimus, ullam. Alias minus quod quidem, officiis fuga eaque, aut at
-      sapiente inventore quibusdam minima quisquam nemo a corrupti nobis maiores
-      debitis aliquid fugiat rerum unde provident quis esse, dicta quo? Expedita
-      voluptates eligendi ad nisi repellendus atque perferendis voluptas in.
-      Eius temporibus neque voluptas debitis inventore tenetur, dolores alias.
-      Aliquid soluta placeat nemo consectetur, sunt et dolore assumenda illum?
-      Tenetur dolores nobis neque suscipit, voluptatem praesentium facilis modi
-      repellat tempore corporis nihil odio, aperiam eius sit quaerat natus
-      architecto qui? Itaque repellendus, incidunt nesciunt quae placeat nostrum
-      voluptatum obcaecati nisi adipisci id reiciendis molestiae cumque quidem
-      maxime perferendis repudiandae mollitia laborum ratione modi quas magni
-      pariatur. Nemo beatae ex, quidem autem minus accusamus est necessitatibus
-      recusandae quos optio harum iste hic sed vitae id delectus cumque sunt, at
-      repellendus porro odio? Delectus possimus minus, necessitatibus ducimus
-      inventore asperiores corporis fuga nisi quidem dolorum quibusdam incidunt
-      adipisci ullam blanditiis amet in magni modi quis, qui velit? Vero, cum
-      fugit, odit in temporibus nisi recusandae laborum, ab impedit ipsa
-      repudiandae. Reprehenderit beatae asperiores magni, qui accusamus
-      explicabo, ratione corrupti quidem, suscipit iure libero sequi corporis
-      harum nihil. Ad possimus fugit consequuntur iure sit maiores officiis
-      exercitationem distinctio sint dolorem adipisci doloremque totam
-      laudantium recusandae, dignissimos inventore autem nobis harum nihil
-      expedita veniam qui! Esse, tempora, doloremque quia voluptates fuga a vero
-      facilis nostrum, earum adipisci similique nisi nihil ad iusto non
-      reiciendis officiis mollitia debitis saepe. Vitae, ipsum. Cupiditate
-      aliquid in reiciendis odio enim libero minima! Illo aut repudiandae
-      voluptatibus doloremque deleniti perspiciatis totam? Culpa odit magni,
-      numquam in illum nulla ab nostrum et labore officiis nesciunt sapiente,
-      natus optio. Amet similique dolor nihil nesciunt expedita suscipit
-      deserunt, est cumque qui doloribus nam consequuntur recusandae eligendi
-      saepe inventore, maxime sit architecto, tenetur fugiat ullam. Dolorum
-      placeat repellendus quis reprehenderit nisi voluptatibus aperiam itaque?
-      Laboriosam, inventore ratione. Quod, similique eveniet adipisci ipsa natus
-      enim autem? Beatae sint unde mollitia tempora consequatur ducimus at ullam
-      fuga labore nam, quae, incidunt libero eius! Qui magni harum hic cumque
-      debitis soluta nobis laborum ex numquam rem nemo, veniam, dolorem
-      voluptatem sunt in quaerat adipisci quae expedita sint! Saepe voluptatibus
-      fugiat sint ea distinctio qui suscipit voluptate totam nemo quaerat
-      placeat, quo recusandae repellat, velit, illo officiis odio ratione nulla
-      ipsa veritatis! Quasi reiciendis eos sed totam deserunt tempore assumenda
-      aliquid.
+    <div className="h-full w-full p-4 scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-300 overflow-y-auto overflow-x-hidden flex flex-col space-y-4 justify-start items-center">
+      <div className="w-full max-w-6xl flex flex-row justify-between items-center">
+        <span className="font-bold text-2xl">Blog</span>
+        {user && (
+          <Link
+            to="new"
+            className="flex flex-row justify-center items-center space-x-2 bg-gray-200 hover:bg-gray-300 transition-all duration-200 py-2 px-4 rounded-lg w-fit"
+          >
+            <FontAwesomeIcon icon={faCirclePlus} />
+            <span>Creeaza un articol nou</span>
+          </Link>
+        )}
+      </div>
+      <div className="w-full max-w-6xl grid grid-cols-2 md:grid-cols-3 grid-rows-1 space-x-4 justify-between rounded-lg">
+        <div className="flex flex-col col-span-2 space-y-2 bg-gray-50 p-4 rounded-lg shadow-md">
+          {loading ? (
+            <div className="w-full h-full flex flex-row justify-center items-center space-x-2">
+              <FontAwesomeIcon icon={faCircleNotch} className="animate-spin" />
+              <span>Se incarca...</span>
+            </div>
+          ) : posts.length > 0 ? (
+            <>
+              <Link
+                to={posts[0].id}
+                className="group relative flex flex-col justify-center items-center w-full h-44 bg-black text-white rounded-lg"
+              >
+                <img
+                  src={`${posts.at(0)?.bannerUrl}`}
+                  className="absolute top-0 left-0 h-full w-full object-cover z-10 opacity-30 group-hover:opacity-20 transition-all duration-200 rounded-lg"
+                  alt="Image"
+                />
+                <div className="opacity-100 group-hover:opacity-0 transition-all duration-200 absolute top-0 left-0 h-full w-full rounded-lg z-20 flex flex-col justify-center items-center space-y-1">
+                  <div className="text-2xl font-semibold w-full text-center px-4 truncate">
+                    {posts[0].title}
+                  </div>
+                  <div className="font-light text-xs opacity-70">
+                    {posts[0].dateUploaded}
+                  </div>
+                </div>
+                <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-0 left-0 h-full w-full rounded-lg z-20 flex flex-row justify-center items-center space-x-2">
+                  <FontAwesomeIcon icon={faArrowRight} />
+                  <span>Vezi Articolul</span>
+                </div>
+              </Link>
+              <div className="flex flex-col justify-center items-center space-y-2">
+                {_.drop(posts).map((post) => (
+                  <div
+                    className="w-full bg-white rounded-lg flex flex-row justify-start items-center shadow-sm shadow-gray-300"
+                    key={post.id}
+                  >
+                    <Link to={post.id} className="relative h-full w-64 group">
+                      <img
+                        src={post.bannerUrl}
+                        className="absolute top-0 left-0 rounded-l-lg h-full w-full object-cover"
+                      />
+                      <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-0 left-0 rounded-l-lg h-full w-full text-white bg-black bg-opacity-50 flex flex-row justify-center items-center space-x-2">
+                        <FontAwesomeIcon icon={faArrowRight} />
+                        <span>Vezi Articolul</span>
+                      </div>
+                    </Link>
+                    <div className="p-4 flex flex-col justify-start items-start w-full space-y-3">
+                      <div className="flex flex-col justify-start items-start space-y-1">
+                        <Link
+                          to={post.id}
+                          className="font-semibold text-xl flex flex-row justify-start items-center space-x-2 group"
+                        >
+                          <span>{post.title}</span>
+                          <FontAwesomeIcon
+                            icon={faArrowRight}
+                            className="h-3.5 w-3.5 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                          />
+                        </Link>
+                        <div className="font-light text-xs opacity-70">
+                          {post.dateUploaded}
+                        </div>
+                      </div>
+                      <div className="w-full bg-black opacity-10 h-px" />
+                      <div className="hidden lg:block text-xs font-light">
+                        {post.contentPreview.split(" ").slice(0, 75).join(" ")}
+                        ...
+                      </div>
+                      <div className="hidden md:block lg:hidden text-xs font-light">
+                        {post.contentPreview.split(" ").slice(0, 50).join(" ")}
+                        ...
+                      </div>
+                      <div className="block md:hidden text-xs font-light">
+                        {post.contentPreview.split(" ").slice(0, 25).join(" ")}
+                        ...
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                <button
+                  onClick={() => nextBatch()}
+                  disabled={moreLoading}
+                  className={`flex flex-row justify-center items-center space-x-2 px-3 py-1 border-2 ${
+                    moreLoading
+                      ? "border-gray-400 text-gray-400"
+                      : "border-black hover:bg-black hover:text-white"
+                  } rounded-lg transition-all duration-200`}
+                >
+                  <FontAwesomeIcon
+                    icon={moreLoading ? faCircleNotch : faArrowDown}
+                    className={`h-3.5 w-3.5 ${
+                      moreLoading ? "animate-spin" : ""
+                    }`}
+                  />
+                  <span className="text-sm">
+                    {moreLoading ? "Se incarca" : "Mai multe postari"}
+                  </span>
+                </button>
+              </div>
+            </>
+          ) : (
+            <div className="flex flex-col w-full h-full justify-center items-center">
+              Nu exista postari!
+            </div>
+          )}
+        </div>
+        <Sidebar />
+      </div>
     </div>
   );
 }
