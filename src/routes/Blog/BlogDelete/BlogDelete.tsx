@@ -4,12 +4,15 @@ import {
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { deleteDoc, doc, getDoc, getFirestore } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { AuthContext } from "../../../context/Auth";
+import useDocumentTitle from "../../../lib/hooks/useDocumentTitle";
 
 function BlogDelete() {
+  useDocumentTitle("Stergere Articol");
+
   const [globalLoading, setGlobalLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -18,13 +21,14 @@ function BlogDelete() {
   let params = useParams();
   let id = params.id;
 
+  const { user } = useContext(AuthContext);
+
   const navigate = useNavigate();
-  const auth = getAuth();
-  onAuthStateChanged(auth, (user) => {
+  useEffect(() => {
     if (!user) {
-      navigate(`/blog/${id}`, { replace: true });
+      navigate(`blog/${id}`, { replace: true });
     }
-  });
+  }, [user]);
 
   const db = getFirestore();
 
@@ -35,7 +39,7 @@ function BlogDelete() {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setGlobalLoading(false);
-        if (docSnap.data().author != auth.currentUser?.uid)
+        if (docSnap.data().author != user?.uid)
           navigate(`/blog/${id}`, { replace: true });
       } else {
         setGlobalLoading(false);

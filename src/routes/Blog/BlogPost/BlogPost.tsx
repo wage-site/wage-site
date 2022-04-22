@@ -5,30 +5,33 @@ import {
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
+import _ from "lodash";
 import { DateTime } from "luxon";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link, useParams } from "react-router-dom";
 import ImageViewer from "react-simple-image-viewer";
 import Sidebar from "../../../components/Blog/Sidebar";
+import { AuthContext } from "../../../context/Auth";
+import { BlogContext } from "../../../context/Blog";
+import useDocumentTitle from "../../../lib/hooks/useDocumentTitle";
 import { BlogPost } from "../types";
 import "./BlogPost.scss";
 
 function BlogPostPage() {
+  useDocumentTitle("Blog");
+
   const [loading, setLoading] = useState(true);
 
   let params = useParams();
   let postId = params.id;
 
-  const auth = getAuth();
-  const db = getFirestore();
+  const { user } = useContext(AuthContext);
+  const { posts, loading: postsLoading } = useContext(BlogContext);
 
   const [canEdit, setCanEdit] = useState(false);
   const [postExists, setPostExists] = useState(true);
   const [postData, setPostData] = useState<BlogPost>();
-  const [authorData, setAuthorData] = useState<UserData>();
 
   const [currentImage, setCurrentImage] = useState(0);
   const [isViewerOpen, setIsViewerOpen] = useState(false);
@@ -45,32 +48,23 @@ function BlogPostPage() {
 
   useEffect(() => {
     (async function () {
+      if (postsLoading) return;
       setLoading(true);
-      const docRef = doc(db, "blog", postId ? postId : "");
-      const docSnap = await getDoc(docRef);
-      if (docSnap.exists()) {
-        setPostData(docSnap.data() as BlogPost);
-        const userRef = doc(db, "users", docSnap.data().author);
-        const userSnap = await getDoc(userRef);
-        if (userSnap.exists()) {
-          setAuthorData(userSnap.data() as UserData);
-        } else {
-          setAuthorData({ name: "Utilizator Sters", username: "", email: "" });
-        }
-        setLoading(false);
-      } else {
-        setPostExists(false);
-        setLoading(false);
-      }
-      onAuthStateChanged(auth, function (user) {
-        if (user && user.uid == postData?.author) {
-          setCanEdit(true);
-        } else {
-          setCanEdit(false);
-        }
-      });
+      let post = _.find(posts, { id: postId });
+      if (!post) setPostExists(false);
+      else setPostExists(true);
+      setPostData(post);
+      setLoading(false);
     })();
-  }, [postId]);
+  }, [postId, postsLoading]);
+
+  useEffect(() => {
+    if (user && user.uid == postData?.author) {
+      setCanEdit(true);
+    } else {
+      setCanEdit(false);
+    }
+  }, [postData, user]);
 
   return (
     <>
@@ -103,7 +97,9 @@ function BlogPostPage() {
                     <span className="text-xs">&#x2022;</span>
                     <div className="text-xs sm:text-sm">
                       <span className="font-light">de </span>
-                      <span className="font-normal">{authorData?.name}</span>
+                      <span className="font-normal">
+                        {postData?.authorName}
+                      </span>
                     </div>
                   </div>
                 </div>

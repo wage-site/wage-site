@@ -8,34 +8,18 @@ import {
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Disclosure, Menu, Popover, Transition } from "@headlessui/react";
 import { MenuIcon, XIcon } from "@heroicons/react/outline";
-import { getAuth } from "firebase/auth";
-import { doc, getDoc, getFirestore } from "firebase/firestore";
-import { Fragment, useEffect, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { Fragment, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
+import { AuthContext } from "../../context/Auth";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
 }
 
 function Navbar() {
-  const auth = getAuth();
-  const db = getFirestore();
-  const [user, userLoading] = useAuthState(auth);
-  const [username, setUsername] = useState("");
+  const { user, userDb } = useContext(AuthContext);
 
   const location = useLocation();
-
-  useEffect(() => {
-    if (!userLoading && user) {
-      getDoc(doc(db, "users", user.uid)).then((snap) => {
-        if (snap.exists()) {
-          const data = snap.data();
-          setUsername(data.username);
-        }
-      });
-    }
-  }, [user]);
 
   const navigation = [
     {
@@ -201,7 +185,7 @@ function Navbar() {
                             {user.displayName}
                           </div>
                           <div className="font-light text-xs opacity-50">
-                            @{username}
+                            @{userDb?.username}
                           </div>
                         </div>
                         <div className="px-1 py-1 space-y-0.5 flex flex-col justify-center items-center">
