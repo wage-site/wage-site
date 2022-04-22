@@ -66,6 +66,7 @@ export function BlogProvider({
         content,
         dateUploaded,
         bannerUrl,
+        imageUrls,
         contentPreview,
       } = post.data();
       let date = DateTime.fromJSDate(dateUploaded.toDate()).toLocaleString(
@@ -80,6 +81,7 @@ export function BlogProvider({
         content,
         contentPreview,
         dateUploaded,
+        imageUrls,
         bannerUrl,
       });
       pagePsts.push({
@@ -89,6 +91,7 @@ export function BlogProvider({
         title,
         content,
         contentPreview,
+        imageUrls,
         dateUploaded: date,
         bannerUrl,
       });
@@ -127,6 +130,7 @@ export function BlogProvider({
             content,
             dateUploaded,
             bannerUrl,
+            imageUrls,
             contentPreview,
           } = post.data();
           let date = DateTime.fromJSDate(dateUploaded.toDate()).toLocaleString(
@@ -141,6 +145,7 @@ export function BlogProvider({
             title,
             content,
             bannerUrl,
+            imageUrls,
             contentPreview,
           });
           pagePsts.push({
@@ -151,6 +156,7 @@ export function BlogProvider({
             content,
             contentPreview,
             dateUploaded: date,
+            imageUrls,
             bannerUrl,
           });
           forceUpdate();

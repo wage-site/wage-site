@@ -69,7 +69,7 @@ function BlogNew() {
     }
     addDoc(collection(db, "blog"), {
       author: user?.uid,
-      auhtorName: user?.displayName,
+      authorName: user?.displayName,
       dateUploaded: Timestamp.now(),
       title: title,
       content: content,
