@@ -4,61 +4,12 @@ import {
 } from "@fortawesome/free-brands-svg-icons";
 import { faArrowRight, faCircleNotch } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  collection,
-  getDocs,
-  getFirestore,
-  limit,
-  orderBy,
-  query,
-} from "firebase/firestore";
-import { DateTime } from "luxon";
-import { useEffect, useState } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
-import { BlogPagePost } from "../../../routes/Blog/types";
+import { BlogContext } from "../../../context/Blog";
 
 function Sidebar() {
-  const [loading, setLoading] = useState(false);
-  const [posts, setPosts] = useState<BlogPagePost[]>();
-
-  const db = getFirestore();
-
-  useEffect(() => {
-    (async function () {
-      setLoading(true);
-      const q = query(
-        collection(db, "blog"),
-        orderBy("dateUploaded", "desc"),
-        limit(3)
-      );
-      const querySnap = await getDocs(q);
-      let psts: BlogPagePost[] = [];
-      querySnap.forEach(async function (post) {
-        let {
-          author,
-          title,
-          content,
-          dateUploaded,
-          bannerUrl,
-          contentPreview,
-        } = post.data();
-        let date = DateTime.fromJSDate(dateUploaded.toDate()).toLocaleString(
-          DateTime.DATE_FULL
-        );
-        psts.push({
-          id: post.id,
-          author,
-          title,
-          content,
-          contentPreview,
-          dateUploaded: date,
-          bannerUrl,
-        });
-      });
-      setLoading(false);
-      setPosts(psts);
-    })();
-  }, []);
+  const { pagePosts: posts, loading } = useContext(BlogContext);
 
   return (
     <div className="flex-col h-fit hidden md:flex col-span-1 space-y-2 bg-white p-3 rounded-lg shadow-md">
@@ -72,7 +23,7 @@ function Sidebar() {
         </div>
       ) : posts && posts.length > 0 ? (
         <>
-          {posts.map((post) => (
+          {posts.slice(0, 3).map((post) => (
             <Link
               to={`/blog/${post.id}`}
               replace

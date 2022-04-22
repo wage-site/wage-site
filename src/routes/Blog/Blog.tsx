@@ -3,120 +3,24 @@ import {
   faArrowRight,
   faCircleNotch,
   faCirclePlus,
+  faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getAuth } from "firebase/auth";
-import {
-  collection,
-  getDocs,
-  getFirestore,
-  limit,
-  orderBy,
-  query,
-  startAfter,
-} from "firebase/firestore";
-import { getStorage } from "firebase/storage";
 import _ from "lodash";
-import { DateTime } from "luxon";
-import { useCallback, useEffect, useState } from "react";
-import { useAuthState } from "react-firebase-hooks/auth";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 import Sidebar from "../../components/Blog/Sidebar";
+import { AuthContext } from "../../context/Auth";
+import { BlogContext } from "../../context/Blog";
 import useDocumentTitle from "../../lib/hooks/useDocumentTitle";
-import { BlogPagePost } from "./types";
 
 function Blog() {
-  const [loading, setLoading] = useState(false);
-  const [moreLoading, setMoreLoading] = useState(false);
-
-  const [, updateState] = useState({});
-  const forceUpdate = useCallback(() => updateState({}), []);
-
-  const auth = getAuth();
-  const [user] = useAuthState(auth);
+  const { user } = useContext(AuthContext);
 
   useDocumentTitle("Blog");
 
-  const db = getFirestore();
-  const storage = getStorage();
-
-  const [posts, setPosts] = useState<BlogPagePost[]>([]);
-  const [lastKey, setLastKey] = useState("");
-
-  async function nextBatch() {
-    setMoreLoading(true);
-    const q = query(
-      collection(db, "blog"),
-      orderBy("dateUploaded", "desc"),
-      startAfter(lastKey),
-      limit(5)
-    );
-    const querySnap = await getDocs(q);
-    let psts: BlogPagePost[] = [];
-    querySnap.forEach(async function (post) {
-      let { author, title, content, dateUploaded, bannerUrl, contentPreview } =
-        post.data();
-      let date = DateTime.fromJSDate(dateUploaded.toDate()).toLocaleString(
-        DateTime.DATE_FULL
-      );
-      setLastKey(dateUploaded);
-      psts.push({
-        id: post.id,
-        author,
-        title,
-        content,
-        contentPreview,
-        dateUploaded: date,
-        bannerUrl,
-      });
-      forceUpdate();
-    });
-
-    setPosts(posts.concat(psts));
-    forceUpdate();
-    setMoreLoading(false);
-  }
-
-  useEffect(() => {
-    (async function () {
-      setLoading(true);
-      const q = query(
-        collection(db, "blog"),
-        orderBy("dateUploaded", "desc"),
-        limit(5)
-      );
-      const querySnap = await getDocs(q);
-      let psts: BlogPagePost[] = [];
-      querySnap.forEach(async function (post) {
-        let {
-          author,
-          title,
-          content,
-          dateUploaded,
-          bannerUrl,
-          contentPreview,
-        } = post.data();
-        let date = DateTime.fromJSDate(dateUploaded.toDate()).toLocaleString(
-          DateTime.DATE_FULL
-        );
-        setLastKey(dateUploaded);
-        psts.push({
-          id: post.id,
-          author,
-          title,
-          content,
-          contentPreview,
-          dateUploaded: date,
-          bannerUrl,
-        });
-        forceUpdate();
-      });
-
-      setPosts(psts);
-      forceUpdate();
-      setLoading(false);
-    })();
-  }, []);
+  const { pagePosts, loading, nextBatch, moreLoading, morePosts } =
+    useContext(BlogContext);
 
   return (
     <div className="h-full w-full p-4 scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-300 overflow-y-auto overflow-x-hidden flex flex-col space-y-4 justify-start items-center">
@@ -139,23 +43,23 @@ function Blog() {
               <FontAwesomeIcon icon={faCircleNotch} className="animate-spin" />
               <span>Se incarca...</span>
             </div>
-          ) : posts.length > 0 ? (
+          ) : pagePosts && pagePosts.length > 0 ? (
             <>
               <Link
-                to={posts[0].id}
+                to={pagePosts[0].id}
                 className="group relative flex flex-col justify-center items-center w-full h-44 bg-black text-white rounded-lg"
               >
                 <img
-                  src={`${posts.at(0)?.bannerUrl}`}
+                  src={`${pagePosts.at(0)?.bannerUrl}`}
                   className="absolute top-0 left-0 h-full w-full object-cover z-10 opacity-30 group-hover:opacity-20 transition-all duration-200 rounded-lg"
                   alt="Image"
                 />
                 <div className="opacity-100 group-hover:opacity-0 transition-all duration-200 absolute top-0 left-0 h-full w-full rounded-lg z-20 flex flex-col justify-center items-center space-y-1">
                   <div className="text-2xl font-semibold w-full text-center px-4 truncate">
-                    {posts[0].title}
+                    {pagePosts[0].title}
                   </div>
                   <div className="font-light text-xs opacity-70">
-                    {posts[0].dateUploaded}
+                    {pagePosts[0].dateUploaded}
                   </div>
                 </div>
                 <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-0 left-0 h-full w-full rounded-lg z-20 flex flex-row justify-center items-center space-x-2">
@@ -164,7 +68,7 @@ function Blog() {
                 </div>
               </Link>
               <div className="flex flex-col justify-center items-center space-y-2">
-                {_.drop(posts).map((post) => (
+                {_.drop(pagePosts).map((post) => (
                   <div
                     className="w-full bg-white rounded-lg flex flex-row justify-start items-center shadow-sm shadow-gray-300"
                     key={post.id}
@@ -213,21 +117,31 @@ function Blog() {
                 ))}
                 <button
                   onClick={() => nextBatch()}
-                  disabled={moreLoading}
+                  disabled={moreLoading || !morePosts}
                   className={`flex flex-row justify-center items-center space-x-2 px-3 py-1 border-2 ${
-                    moreLoading
+                    moreLoading || !morePosts
                       ? "border-gray-400 text-gray-400"
                       : "border-black hover:bg-black hover:text-white"
                   } rounded-lg transition-all duration-200`}
                 >
                   <FontAwesomeIcon
-                    icon={moreLoading ? faCircleNotch : faArrowDown}
+                    icon={
+                      moreLoading
+                        ? faCircleNotch
+                        : morePosts
+                        ? faArrowDown
+                        : faCircleXmark
+                    }
                     className={`h-3.5 w-3.5 ${
                       moreLoading ? "animate-spin" : ""
                     }`}
                   />
                   <span className="text-sm">
-                    {moreLoading ? "Se incarca" : "Mai multe postari"}
+                    {moreLoading
+                      ? "Se incarca"
+                      : morePosts
+                      ? "Mai multe postari"
+                      : "Nu mai exista postari"}
                   </span>
                 </button>
               </div>

@@ -6,29 +6,33 @@ import {
   faCloudArrowUp,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, getDoc, getFirestore, updateDoc } from "firebase/firestore";
 import markdownToTxt from "markdown-to-text";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { ScrollSync, ScrollSyncNode } from "scroll-sync-react";
+import { AuthContext } from "../../../context/Auth";
+import useDocumentTitle from "../../../lib/hooks/useDocumentTitle";
 import { BlogPost } from "../types";
 
 function BlogEdit() {
+  useDocumentTitle("Editare Articol");
+
   const [globalLoading, setGlobalLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
   let params = useParams();
   let id = params.id;
 
+  const { user } = useContext(AuthContext);
+
   const navigate = useNavigate();
-  const auth = getAuth();
-  onAuthStateChanged(auth, (user) => {
+  useEffect(() => {
     if (!user) {
       navigate(`/blog/${id}`, { replace: true });
     }
-  });
+  }, [user]);
 
   const db = getFirestore();
 
@@ -48,7 +52,7 @@ function BlogEdit() {
       if (docSnap.exists()) {
         setPostData(docSnap.data() as BlogPost);
         setGlobalLoading(false);
-        if (docSnap.data().author != auth.currentUser?.uid)
+        if (docSnap.data().author != user?.uid)
           navigate(`/blog/${id}`, { replace: true });
       } else {
         setGlobalLoading(false);

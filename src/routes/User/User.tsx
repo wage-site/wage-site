@@ -1,21 +1,19 @@
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../context/Auth";
 import useDocumentTitle from "../../lib/hooks/useDocumentTitle";
 
 function User() {
   useDocumentTitle("Profil");
+  const { user, loading } = useContext(AuthContext);
   const navigate = useNavigate();
-  const auth = getAuth();
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (!user) {
-        navigate("/user/login");
-      }
-    });
-  }, [auth.currentUser]);
+    if (!user && !loading) {
+      navigate("/user/login", { replace: true });
+    }
+  }, [user]);
 
-  return <div>Logged in as {auth.currentUser?.displayName}</div>;
+  return <div>Logged in as {user?.displayName}</div>;
 }
 
 export default User;

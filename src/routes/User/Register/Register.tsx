@@ -7,7 +7,6 @@ import { validate as mailValidate } from "email-validator";
 import {
   createUserWithEmailAndPassword,
   getAuth,
-  onAuthStateChanged,
   updateProfile,
 } from "firebase/auth";
 import {
@@ -18,8 +17,9 @@ import {
   onSnapshot,
   updateDoc,
 } from "firebase/firestore";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../../../context/Auth";
 import useDocumentTitle from "../../../lib/hooks/useDocumentTitle";
 
 function Register() {
@@ -29,14 +29,14 @@ function Register() {
   const auth = getAuth();
   const db = getFirestore();
 
+  const { user } = useContext(AuthContext);
+
   const navigate = useNavigate();
   useEffect(() => {
-    onAuthStateChanged(auth, (user) => {
-      if (user && !loading) {
-        navigate("/user", { replace: true });
-      }
-    });
-  }, [auth.currentUser, loading]);
+    if (user && !loading) {
+      navigate("/user", { replace: true });
+    }
+  }, [user, loading]);
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -114,45 +114,41 @@ function Register() {
     }
 
     if (canRun) {
-      createUserWithEmailAndPassword(auth, email, password)
-        .then(() => {
-          const unsub = onSnapshot(
-            doc(db, "users", auth.currentUser ? auth.currentUser.uid : ""),
-            (docSnap) => {
-              if (docSnap.exists() && auth.currentUser) {
-                updateProfile(auth.currentUser, {
-                  displayName: name,
-                });
-                updateDoc(
-                  doc(
-                    db,
-                    "users",
-                    auth.currentUser ? auth.currentUser.uid : ""
-                  ),
-                  {
-                    username: username,
-                    name: name,
-                  }
-                ).then(() => {
-                  unsub();
-                });
+      let errorCode: string = "";
+      await createUserWithEmailAndPassword(auth, email, password).catch(
+        (error) => {
+          errorCode = error.code;
+        }
+      );
+      switch (errorCode) {
+        case "auth/email-already-in-use": {
+          setEmailValid(false);
+          setEmailErrText("Email already in use.");
+        }
+      }
+      if (errorCode != "") {
+        setLoading(false);
+        return;
+      }
+      const unsub = onSnapshot(
+        doc(db, "users", auth.currentUser ? auth.currentUser.uid : ""),
+        async (docSnap) => {
+          if (docSnap.exists() && auth.currentUser) {
+            await updateProfile(auth.currentUser, {
+              displayName: name,
+            });
+            await updateDoc(
+              doc(db, "users", auth.currentUser ? auth.currentUser.uid : ""),
+              {
+                username: username,
+                name: name,
               }
-            }
-          );
-          setLoading(false);
-        })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          setLoading(false);
-          switch (errorCode) {
-            case "auth/email-already-in-use": {
-              setEmailValid(false);
-              setEmailErrText("Email already in use.");
-            }
+            );
+            unsub();
           }
-          console.log(errorCode, errorMessage);
-        });
+        }
+      );
+      setLoading(false);
     } else {
       return;
     }

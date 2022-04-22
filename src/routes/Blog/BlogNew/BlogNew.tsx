@@ -7,7 +7,6 @@ import {
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { getAuth, onAuthStateChanged, User } from "firebase/auth";
 import {
   addDoc,
   collection,
@@ -17,28 +16,29 @@ import {
 } from "firebase/firestore";
 import { getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
 import markdownToTxt from "markdown-to-text";
-import { LegacyRef, useEffect, useRef, useState } from "react";
+import { LegacyRef, useContext, useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { Link, useNavigate } from "react-router-dom";
 import { ScrollSync, ScrollSyncNode } from "scroll-sync-react";
+import { AuthContext } from "../../../context/Auth";
+import useDocumentTitle from "../../../lib/hooks/useDocumentTitle";
 
 function BlogNew() {
+  useDocumentTitle("Articol Nou");
+
   const [loading, setLoading] = useState(false);
 
   const db = getFirestore();
   const storage = getStorage();
 
-  const [user, setUser] = useState<User>();
+  const { user } = useContext(AuthContext);
 
   const navigate = useNavigate();
-  const auth = getAuth();
-  onAuthStateChanged(auth, (data) => {
-    if (!data) {
+  useEffect(() => {
+    if (!user) {
       navigate("/blog");
-    } else {
-      setUser(user);
     }
-  });
+  }, [user]);
 
   const imagesInputRef = useRef<HTMLInputElement>();
   const [imgIKey, setImgIKey] = useState("");
@@ -68,7 +68,8 @@ function BlogNew() {
       return;
     }
     addDoc(collection(db, "blog"), {
-      author: auth.currentUser?.uid,
+      author: user?.uid,
+      auhtorName: user?.displayName,
       dateUploaded: Timestamp.now(),
       title: title,
       content: content,
