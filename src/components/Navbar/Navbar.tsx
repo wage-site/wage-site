@@ -1,4 +1,5 @@
 import {
+  faArrowRight,
   faArrowRightFromBracket,
   faCircleUser,
   faLeaf,
@@ -11,6 +12,7 @@ import { MenuIcon, XIcon } from "@heroicons/react/outline";
 import { Fragment, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AuthContext } from "../../context/Auth";
+import proiecte from "../../lib/global/proiecte";
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(" ");
@@ -109,7 +111,68 @@ function Navbar() {
                               <Popover.Panel className="absolute z-10 w-96 px-4 mt-3 transform lg:-translate-x-1/2 lg:left-1/2 sm:px-0 lg:max-w-3xl">
                                 {({ close }) => (
                                   <div className="overflow-hidden rounded-lg shadow-lg ring-1 ring-black ring-opacity-5">
-                                    <div className="relative grid gap-8 bg-white p-7 lg:grid-cols-2"></div>
+                                    <div className="relative flex flex-col justify-start items-center space-y-3 bg-white p-4">
+                                      <div className="w-full flex flex-row justify-center items-center after:w-full after:h-px after:ml-3 after:flex-1 space-x-2 after:bg-black after:opacity-50">
+                                        <span className="flex-shrink text-lg font-semibold">
+                                          Cel mai recent proiect
+                                        </span>
+                                      </div>
+                                      {proiecte.slice(0, 1).map((proiect) => (
+                                        <div
+                                          className="w-full flex flex-col justify-start items-center rounded-lg bg-gray-100"
+                                          key={proiect.title}
+                                        >
+                                          <Link
+                                            to={proiect.location}
+                                            replace
+                                            className="relative w-full h-32 rounded-t-lg group"
+                                          >
+                                            <img
+                                              src={proiect.image}
+                                              className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                                            />
+                                            <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute w-full h-full top-0 left-0 bg-black bg-opacity-70 flex flex-row justify-center items-center space-x-2 rounded-t-lg text-white">
+                                              <span>Vezi Proiectul</span>
+                                              <FontAwesomeIcon
+                                                icon={faArrowRight}
+                                              />
+                                            </div>
+                                          </Link>
+                                          <div className="w-full p-4 flex flex-col justify-start items-start space-y-3">
+                                            <div className="w-full flex flex-col justify-start items-start">
+                                              <Link
+                                                to={proiect.location}
+                                                className="font-semibold group inline-flex flex-row justify-center items-center space-x-2"
+                                              >
+                                                <span>{proiect.title}</span>
+                                                <FontAwesomeIcon
+                                                  icon={faArrowRight}
+                                                  className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-all duration-200"
+                                                />
+                                              </Link>
+                                              <div className="font-light text-xs w-full">
+                                                {proiect.subtitle}
+                                              </div>
+                                            </div>
+                                            <div className="w-full h-px bg-black opacity-20" />
+                                            <div className="text-sm text-neutral-800">
+                                              {proiect.details}
+                                            </div>
+                                            <Link
+                                              to={proiect.location}
+                                              replace
+                                              className="inline-flex flex-row justify-center items-center space-x-1.5 py-1 w-full text-center border-2 rounded-lg border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-all duration-300"
+                                            >
+                                              <span>Vezi Proiectul</span>
+                                              <FontAwesomeIcon
+                                                icon={faArrowRight}
+                                                className="w-3.5 h-3.5"
+                                              />
+                                            </Link>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
                                     <div className="p-4 bg-gray-50">
                                       <Link
                                         to="/proiecte"
