@@ -43,7 +43,7 @@ var userid = "7137",
 mapboxgl.accessToken =
   "pk.eyJ1IjoiZWR5Z3V5IiwiYSI6ImNrbDNoZzB0ZjA0anoydm13ejJ2ZnI1bTUifQ.IAGnqkUNAZULY6QbYCSS7w";
 
-function Harta() {
+function Harta({ backButton = true }: { backButton?: boolean }) {
   useDocumentTitle("Harta");
 
   const size = useWindowSize();
@@ -556,15 +556,17 @@ function Harta() {
         leaveTo="opacity-0"
       >
         <div className="absolute bottom-0 sm:top-0 sm:bottom-auto left-0 m-2 flex flex-row sm:flex-col justify-between items-end sm:justify-start sm:items-start w-[calc(100%-1rem)] sm:w-min sm:space-y-2">
-          <Link
-            to="/"
-            className="py-4 px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
-          >
-            <FontAwesomeIcon
-              icon={faArrowRightToBracket}
-              className="rotate-180"
-            />
-          </Link>
+          {backButton && (
+            <Link
+              to="/"
+              className="py-4 px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
+            >
+              <FontAwesomeIcon
+                icon={faArrowRightToBracket}
+                className="rotate-180"
+              />
+            </Link>
+          )}
           <button
             onClick={() => {
               openTab("wagepedia");
@@ -610,12 +612,14 @@ function Harta() {
               </button>
               <a
                 href="https://instagram.com/wage_team_cndg"
+                target="_blank"
                 className="py-5 px-6 sm:py-4 sm:px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
               >
                 <FontAwesomeIcon icon={faInstagram} className="" />
               </a>
               <a
                 href="https://www.facebook.com/wageteam"
+                target="_blank"
                 className="py-4 px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
               >
                 <FontAwesomeIcon icon={faFacebookSquare} />
