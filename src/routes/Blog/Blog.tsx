@@ -23,7 +23,7 @@ function Blog() {
     useContext(BlogContext);
 
   return (
-    <div className="h-full w-full p-4 scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-300 overflow-y-auto overflow-x-hidden flex flex-col space-y-4 justify-start items-center">
+    <div className="h-full w-full p-4 scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-300 overflow-y-auto overflow-x-hidden flex flex-col space-y-4 justify-start items-center bg-white">
       <div className="w-full max-w-6xl flex flex-row justify-between items-center">
         <span className="font-bold text-2xl">Blog</span>
         {user && (
@@ -47,7 +47,7 @@ function Blog() {
             <>
               <Link
                 to={pagePosts[0].id}
-                className="group relative flex flex-col justify-center items-center w-full h-44 bg-black text-white rounded-lg"
+                className="group relative flex flex-col justify-center items-center w-full h-96 bg-black text-white rounded-lg"
               >
                 <img
                   src={`${pagePosts.at(0)?.bannerUrl}`}
