@@ -22,7 +22,7 @@ import Logout from "./routes/User/Logout";
 import Register from "./routes/User/Register";
 import Settings from "./routes/User/Settings";
 
-let concurs: boolean = false;
+let concurs: boolean = true;
 
 function App() {
   return (
