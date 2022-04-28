@@ -22,6 +22,8 @@ import Logout from "./routes/User/Logout";
 import Register from "./routes/User/Register";
 import Settings from "./routes/User/Settings";
 
+let concurs: boolean = false;
+
 function App() {
   return (
     <AuthProvider>
@@ -70,4 +72,15 @@ function App() {
   );
 }
 
-export default App;
+function HartaOnly() {
+  return (
+    <BrowserRouter>
+      <Routes>
+        <Route path="*" element={<Page404 />} />
+        <Route path="/" element={<Harta backButton={false} />} />
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default concurs ? HartaOnly : App;

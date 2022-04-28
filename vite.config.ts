@@ -1,7 +1,8 @@
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
-import vrp from "vite-raw-plugin";
 import pnr from "@rollup/plugin-node-resolve";
+import react from "@vitejs/plugin-react";
+import css from "rollup-plugin-import-css";
+import { defineConfig } from "vite";
+import vrp from "vite-raw-plugin";
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -16,7 +17,7 @@ export default defineConfig({
       output: {
         minifyInternalExports: true,
       },
-      plugins: [pnr()],
+      plugins: [pnr(), css()],
     },
     chunkSizeWarningLimit: 1600,
   },

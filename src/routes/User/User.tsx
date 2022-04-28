@@ -5,10 +5,10 @@ import useDocumentTitle from "../../lib/hooks/useDocumentTitle";
 
 function User() {
   useDocumentTitle("Profil");
-  const { user, loading } = useContext(AuthContext);
+  const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   useEffect(() => {
-    if (!user && !loading) {
+    if (!user) {
       navigate("/user/login", { replace: true });
     }
   }, [user]);

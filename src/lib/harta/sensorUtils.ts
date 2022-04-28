@@ -1,3 +1,8 @@
+/**
+ * Get the unit used for a specific type of sensor
+ * @param sensor Sensor type to get unit for
+ * @returns Unit used fot the type of sensor passed
+ */
 export function getUnit(sensor: string) {
   switch (sensor) {
     case "temperature":
@@ -37,6 +42,11 @@ export function getUnit(sensor: string) {
   }
 }
 
+/**
+ * Get the arithmetic mean of the args passed
+ * @param [...values] Values to get the arithmetic mean of
+ * @returns The arithmetic mean of the values passed
+ */
 export function calcApprox([...values]: Array<
   number | undefined | null
 >): number {
