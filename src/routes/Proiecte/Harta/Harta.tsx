@@ -32,6 +32,7 @@ import hB from "../../../assets/svg/hartaBanner.svg";
 import Wagepedia from "../../../components/Harta/Wagepedia";
 import { calcApprox, getUnit } from "../../../lib/harta/sensorUtils";
 import useDocumentTitle from "../../../lib/hooks/useDocumentTitle";
+import useEventListener from "../../../lib/hooks/useEventListener";
 import useWindowSize from "../../../lib/hooks/useWindowSize";
 import "./Harta.scss";
 
@@ -44,7 +45,49 @@ mapboxgl.accessToken =
   "pk.eyJ1IjoiZWR5Z3V5IiwiYSI6ImNrbDNoZzB0ZjA0anoydm13ejJ2ZnI1bTUifQ.IAGnqkUNAZULY6QbYCSS7w";
 
 function Harta({ backButton = true }: { backButton?: boolean }) {
-  useDocumentTitle("Harta");
+  if (backButton) useDocumentTitle("Harta");
+  else useDocumentTitle("");
+
+  const [easeTo, setEaseTo] = useState<"campulung" | "targoviste">("campulung");
+  const [easeToCoords, setEaseToCoords] = useState<[number, number]>([
+    25.045456, 45.268469,
+  ]);
+
+  const [easeToMessage, setEaseToMessage] = useState(false);
+
+  useEventListener("keydown", ({ key }) => {
+    if (key == "1") {
+      setEaseTo("campulung");
+    } else if (key == "2") {
+      setEaseTo("targoviste");
+    } else {
+      return;
+    }
+  });
+
+  useEffect(() => {
+    setEaseToMessage(true);
+    setEaseToCoords(
+      easeTo == "campulung" ? [25.045456, 45.268469] : [25.4517, 44.928912]
+    );
+    map.current?.easeTo({
+      center:
+        easeTo == "campulung" ? [25.045456, 45.268469] : [25.4517, 44.928912],
+      zoom: 12,
+      duration: 1000,
+    });
+  }, [easeTo]);
+
+  useEffect(() => {
+    const timeId = setTimeout(() => {
+      // After 3 seconds set the show value to false
+      setEaseToMessage(false);
+    }, 1000);
+
+    return () => {
+      clearTimeout(timeId);
+    };
+  }, [easeToMessage]);
 
   const size = useWindowSize();
 
@@ -357,9 +400,222 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
     });
   }, [selectedMenu, graphTime]);
 
+  useEffect(() => {
+    if (!menuOpened) return;
+
+    const interval = setInterval(() => {
+      update();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [menuOpened, selectedMenu, graphTime]);
+
+  function update() {
+    if (selectedMenu == "wagepedia" || selectedMenu == "socials") return;
+    else if (selectedMenu == "") {
+      setMenuData(undefined);
+      setGraphData(undefined);
+    } else {
+      let sensorId: string = "";
+      let sensorCoords;
+      let sensorPicture: string;
+      sensors.map((sensor) => {
+        if (sensor.name == selectedMenu) {
+          sensorId = sensor.id;
+          sensorCoords = sensor.coords;
+          sensorPicture = sensor.picture;
+        }
+      });
+      map.current?.easeTo({
+        center: sensorCoords,
+        zoom: 16,
+        duration: 1000,
+      });
+      axios({
+        method: "GET",
+        url: `https://data.uradmonitor.com/api/v1/devices/${sensorId}/all`,
+        headers: {
+          "Content-Type": "text/plain",
+          "X-User-id": userid,
+          "X-User-hash": userkey,
+        },
+        responseType: "json",
+      }).then((data) => {
+        let {
+          gas1,
+          humidity,
+          temperature,
+          latitude,
+          longitude,
+          pressure,
+          time,
+          timelocal,
+          pm1,
+          pm10,
+          pm25,
+          co2,
+        } = data.data[data.data.length - 1];
+        let date = DateTime.fromSeconds(time).toLocaleString(
+          DateTime.TIME_SIMPLE
+        );
+        setMenuData({
+          name: selectedMenu,
+          gas1: gas1,
+          humidity: humidity,
+          temperature: temperature
+            ? parseInt(temperature.toString().substring(0, 4))
+            : null,
+          latitude: latitude ? latitude : null,
+          longitude: longitude ? longitude : null,
+          pressure: pressure ? pressure : null,
+          time: time ? time : null,
+          timelocal: timelocal ? timelocal : null,
+          pm1: pm1,
+          pm10: pm10,
+          pm25: pm25,
+          date: date,
+          picture: sensorPicture,
+          co2: co2,
+        });
+      });
+    }
+    if (
+      selectedMenu == "wagepedia" ||
+      selectedMenu == "" ||
+      selectedMenu == "socials"
+    )
+      return;
+    let sensorId: string = "";
+    sensors.map((sensor) => {
+      if (sensor.name == selectedMenu) {
+        sensorId = sensor.id;
+      }
+    });
+    let pm1Arr: number[] = [];
+    let pm10Arr: number[] = [];
+    let pm25Arr: number[] = [];
+    let pmArr: number[] = [];
+    let gas1Arr: number[] = [];
+    let co2Arr: number[] = [];
+    let timesArr: string[] = [];
+    axios({
+      method: "GET",
+      url: `https://data.uradmonitor.com/api/v1/devices/${sensorId}/all/${
+        graphTime * 3600
+      }`,
+      headers: {
+        "Content-Type": "text/plain",
+        "X-User-id": userid,
+        "X-User-hash": userkey,
+      },
+      responseType: "json",
+    }).then((data) => {
+      data.data?.forEach((time: AJAXSensorData) => {
+        let date = DateTime.fromSeconds(time.time).toLocaleString(
+          DateTime.TIME_SIMPLE
+        );
+        pm1Arr.push(time.pm1);
+        pm10Arr.push(time.pm10);
+        pm25Arr.push(time.pm25);
+        gas1Arr.push(time.gas1);
+        co2Arr.push(time.co2);
+        if (
+          [time.pm1, time.pm10, time.pm25].filter((x) => {
+            return x != undefined;
+          }).length > 1
+        )
+          pmArr.push(calcApprox([time.pm1, time.pm10, time.pm25]));
+        timesArr.push(date);
+      });
+      let gD: ChartData<"line", number[], string> = {
+        datasets: [],
+        labels: [],
+      };
+      if (
+        pm1Arr.filter((x) => {
+          return x != undefined;
+        }).length > 1
+      )
+        gD.datasets.push({
+          label: "PM1.0",
+          data: pm1Arr,
+          fill: false,
+          borderColor: "#16A34A",
+          tension: 0.1,
+        });
+      if (
+        pm25Arr.filter((x) => {
+          return x != undefined;
+        }).length > 1
+      )
+        gD.datasets.push({
+          label: "PM2.5",
+          data: pm25Arr,
+          fill: false,
+          borderColor: "#15803D",
+          tension: 0.1,
+        });
+      if (
+        pm10Arr.filter((x) => {
+          return x != undefined;
+        }).length > 1
+      )
+        gD.datasets.push({
+          label: "PM10",
+          data: pm10Arr,
+          fill: false,
+          borderColor: "#14532D",
+          tension: 0.1,
+        });
+      if (
+        pmArr.filter((x) => {
+          return x != undefined;
+        }).length > 1
+      )
+        gD.datasets.push({
+          label: "PM",
+          data: pmArr,
+          fill: false,
+          borderColor: "#22C55E",
+          tension: 0.1,
+        });
+      if (
+        gas1Arr.filter((x) => {
+          return x != undefined;
+        }).length > 1
+      )
+        gD.datasets.push({
+          label: "NO2",
+          data: gas1Arr,
+          fill: false,
+          borderColor: "#22C55E",
+          tension: 0.1,
+        });
+      if (
+        co2Arr.filter((x) => {
+          return x != undefined;
+        }).length > 1
+      )
+        gD.datasets.push({
+          label: "CO2",
+          data: co2Arr,
+          fill: false,
+          borderColor: "#22C55E",
+          tension: 0.1,
+        });
+      if (
+        timesArr.filter((x) => {
+          return x != undefined;
+        }).length > 1
+      )
+        gD.labels = timesArr;
+      setGraphData(gD);
+    });
+  }
+
   function closeTab() {
     map.current?.easeTo({
-      center: [25.045456, 45.268469],
+      center: easeToCoords,
       zoom: 12,
       duration: 1000,
     });
@@ -380,118 +636,118 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
   function getQuality(
     type: string,
     value: number
-  ): { color: string; message: string } {
+  ): { color: { border: string; indicator: string }; message: string } {
     switch (type) {
       case "pm1": {
         if (value >= 0 && value < 12.0)
           return {
-            color: "border-green-500",
+            color: { border: "border-green-500", indicator: "bg-green-500" },
             message: "Calitatea aerului ideală pentru activități în aer liber.",
           };
         else if (value > 12.1 && value < 66)
           return {
-            color: "border-yellow-500",
+            color: { border: "border-yellow-500", indicator: "bg-yellow-500" },
             message:
               "Nu modificați activitățile obișnuite în aer liber decât dacă aveți simptome cum ar fi tusea și iritația gâtului.",
           };
         else if (value > 66 && value < 99)
           return {
-            color: "border-orange-500",
+            color: { border: "border-orange-500", indicator: "bg-orange-500" },
             message: "Nesănătos pentru persoanele sensibile",
           };
         else if (value > 99 && value < 199)
           return {
-            color: "border-red-500",
+            color: { border: "border-red-500", indicator: "bg-red-500" },
             message: "Nesanatos pentru toate tipurile de persoane",
           };
         else if (value > 200)
           return {
-            color: "border-black",
+            color: { border: "border-black", indicator: "bg-black" },
             message: "Riscant pentru toate tipurile de persoane",
           };
       }
       case "pm25": {
         if (value >= 0 && value < 12.0)
           return {
-            color: "border-green-500",
+            color: { border: "border-green-500", indicator: "bg-green-500" },
             message: "Calitatea aerului ideală pentru activități în aer liber.",
           };
         else if (value > 12.1 && value < 66)
           return {
-            color: "border-yellow-500",
+            color: { border: "border-yellow-500", indicator: "bg-yellow-500" },
             message:
               "Nu modificați activitățile obișnuite în aer liber decât dacă aveți simptome cum ar fi tusea și iritația gâtului.",
           };
         else if (value > 66 && value < 99)
           return {
-            color: "border-orange-500",
+            color: { border: "border-orange-500", indicator: "bg-orange-500" },
             message: "Nesănătos pentru persoanele sensibile",
           };
         else if (value > 99 && value < 199)
           return {
-            color: "border-red-500",
+            color: { border: "border-red-500", indicator: "bg-red-500" },
             message: "Nesănătos pentru toate tipurile de persoane",
           };
         else if (value > 200)
           return {
-            color: "border-black",
+            color: { border: "border-black", indicator: "bg-black" },
             message: "Riscant pentru toate tipurile de persoane",
           };
       }
       case "pm10": {
         if (value >= 0 && value < 50)
           return {
-            color: "border-green-500",
+            color: { border: "border-green-500", indicator: "bg-green-500" },
             message: "Calitatea aerului ideală pentru activități în aer liber.",
           };
         else if (value > 51 && value < 100)
           return {
-            color: "border-yellow-500",
+            color: { border: "border-yellow-500", indicator: "bg-yellow-500" },
             message:
               "Nu modificați activitățile obișnuite în aer liber decât dacă aveți simptome cum ar fi tusea și iritația gâtului.",
           };
         else if (value > 101 && value < 150)
           return {
-            color: "border-orange-500",
+            color: { border: "border-orange-500", indicator: "bg-orange-500" },
             message: "Nesănătos pentru persoanele sensibile",
           };
         else if (value > 151 && value < 300)
           return {
-            color: "border-red-500",
+            color: { border: "border-red-500", indicator: "bg-red-500" },
             message: "Nesanatos pentru toate tipurile de persoane",
           };
         else if (value > 300)
           return {
-            color: "border-black",
+            color: { border: "border-black", indicator: "bg-black" },
             message: "Riscant pentru toate tipurile de persoane",
           };
       }
       case "co2": {
         if (value >= 400 && value < 1000)
           return {
-            color: "border-green-500",
+            color: { border: "border-green-500", indicator: "bg-green-500" },
             message: "Calitatea aerului ideală pentru activități în aer liber.",
           };
         else if (value > 1000 && value < 2000)
           return {
-            color: "border-yellow-500",
+            color: { border: "border-yellow-500", indicator: "bg-yellow-500" },
             message: "Nivel asociat cu senzatii de somnolență și aer slab.",
           };
         else if (value > 2000 && value < 5000)
           return {
-            color: "border-orange-500",
+            color: { border: "border-orange-500", indicator: "bg-orange-500" },
             message:
               "Nivel asociat cu dureri de cap, somnolență și aer stagnant, învechit și înfundat.",
           };
         else if (value > 5000 && value < 40000)
           return {
-            color: "border-red-500",
+            color: { border: "border-red-500", indicator: "bg-red-500" },
             message:
               "Condiții de aer neobișnuite în care ar putea fi prezente și niveluri ridicate de alte gaze.",
           };
         else if (value > 40000)
           return {
-            color: "border-black",
+            color: { border: "border-black", indicator: "bg-black" },
             message:
               "Acest nivel este imediat dăunător din cauza lipsei de oxigen.",
           };
@@ -499,39 +755,52 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
       case "no2": {
         if (value >= 0 && value < 50)
           return {
-            color: "border-green-500",
+            color: { border: "border-green-500", indicator: "bg-green-500" },
             message: "Calitatea aerului ideală pentru activități în aer liber.",
           };
         else if (value > 51 && value < 100)
           return {
-            color: "border-yellow-500",
+            color: { border: "border-yellow-500", indicator: "bg-yellow-500" },
             message:
               "Nu modificați activitățile obișnuite în aer liber decât dacă aveți simptome cum ar fi tusea și iritația gâtului.",
           };
         else if (value > 101 && value < 150)
           return {
-            color: "border-orange-500",
+            color: { border: "border-orange-500", indicator: "bg-orange-500" },
             message: "Nesănătos pentru persoanele sensibile",
           };
         else if (value > 151 && value < 200)
           return {
-            color: "border-red-500",
+            color: { border: "border-red-500", indicator: "bg-red-500" },
             message: "Nesănătos pentru toate tipurile de persoane",
           };
         else if (value > 201)
           return {
-            color: "border-black",
+            color: { border: "border-black", indicator: "bg-black" },
             message: "Riscant pentru toate tipurile de persoane",
           };
       }
       default: {
         return {
-          color: "border-blue-500",
+          color: { border: "border-blue-500", indicator: "bg-blue-500" },
           message: "Nu s-au inregistrat destule date!",
         };
       }
     }
   }
+
+  const transitionProps = {
+    as: Fragment,
+    enter: "transition duration-500 ease-out",
+    enterFrom: "opacity-0 origin-top",
+    enterTo: "opacity-100 origin-top",
+    leave: "transition duration-200 ease-out",
+    leaveFrom: "opacity-100 origin-top",
+    leaveTo: "opacity-0 origin-top",
+  };
+
+  const popoutClasses =
+    "border-0 p-2 py-3 text-sm w-full flex flex-row justify-between items-center space-x-2";
 
   return (
     <div className="h-full w-full font-custom">
@@ -545,6 +814,22 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
           width: "100%",
         }}
       />
+      <Transition
+        as={Fragment}
+        show={easeToMessage}
+        enter="transition-all duration-200"
+        enterFrom="opacity-0"
+        enterTo="opacity-100"
+        leave="transition-all duration-500"
+        leaveFrom="opacity-100"
+        leaveTo="opacity-0"
+      >
+        <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center">
+          <div className="flex flex-row items-center justify-center bg-gray-200 shadow-md rounded-full px-5 py-2">
+            Ease to {easeTo == "campulung" ? "Campulung" : "Targoviste"}
+          </div>
+        </div>
+      </Transition>
       <Transition
         as={Fragment}
         show={!menuOpened}
@@ -763,23 +1048,30 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                                     </div>
                                   </div>
                                 </Disclosure.Button>
-                                <Transition
-                                  as={Fragment}
-                                  enter="transition duration-500 ease-out"
-                                  enterFrom="scale-y-0 opacity-0 origin-top"
-                                  enterTo="scale-y-100 opacity-100 origin-top"
-                                  leave="transition duration-500 ease-out"
-                                  leaveFrom="scale-y-100 opacity-100 origin-top"
-                                  leaveTo="scale-y-0 opacity-0 origin-top"
-                                >
+                                <Transition {...transitionProps}>
                                   {menuData.gas1 != null && (
                                     <Disclosure.Panel
                                       className={classNames(
-                                        getQuality("no2", menuData.gas1).color,
-                                        `border-2 rounded-lg p-2 text-sm`
+                                        getQuality("no2", menuData.gas1).color
+                                          .border,
+                                        popoutClasses
                                       )}
                                     >
-                                      {getQuality("no2", menuData.gas1).message}
+                                      <span className="">
+                                        {
+                                          getQuality("no2", menuData.gas1)
+                                            .message
+                                        }
+                                      </span>
+                                      <div className="flex flex-row h-full justify-end items-center">
+                                        <div
+                                          className={classNames(
+                                            getQuality("no2", menuData.gas1)
+                                              .color.indicator,
+                                            "h-5 rounded-md aspect-square"
+                                          )}
+                                        />
+                                      </div>
                                     </Disclosure.Panel>
                                   )}
                                 </Transition>
@@ -806,23 +1098,30 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                                     </div>
                                   </div>
                                 </Disclosure.Button>
-                                <Transition
-                                  as={Fragment}
-                                  enter="transition duration-500 ease-out"
-                                  enterFrom="scale-y-0 opacity-0 origin-top"
-                                  enterTo="scale-y-100 opacity-100 origin-top"
-                                  leave="transition duration-500 ease-out"
-                                  leaveFrom="scale-y-100 opacity-100 origin-top"
-                                  leaveTo="scale-y-0 opacity-0 origin-top"
-                                >
+                                <Transition {...transitionProps}>
                                   {menuData.pm1 != null && (
                                     <Disclosure.Panel
                                       className={classNames(
-                                        getQuality("pm1", menuData.pm1).color,
-                                        `border-2 rounded-lg p-2 text-sm`
+                                        getQuality("pm1", menuData.pm1).color
+                                          .border,
+                                        popoutClasses
                                       )}
                                     >
-                                      {getQuality("pm1", menuData.pm1).message}
+                                      <span className="">
+                                        {
+                                          getQuality("pm1", menuData.pm1)
+                                            .message
+                                        }
+                                      </span>
+                                      <div className="flex flex-row h-full justify-end items-center">
+                                        <div
+                                          className={classNames(
+                                            getQuality("pm1", menuData.pm1)
+                                              .color.indicator,
+                                            "h-5 rounded-md aspect-square"
+                                          )}
+                                        />
+                                      </div>
                                     </Disclosure.Panel>
                                   )}
                                 </Transition>
@@ -849,26 +1148,30 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                                     </div>
                                   </div>
                                 </Disclosure.Button>
-                                <Transition
-                                  as={Fragment}
-                                  enter="transition duration-500 ease-out"
-                                  enterFrom="scale-y-0 opacity-0 origin-top"
-                                  enterTo="scale-y-100 opacity-100 origin-top"
-                                  leave="transition duration-500 ease-out"
-                                  leaveFrom="scale-y-100 opacity-100 origin-top"
-                                  leaveTo="scale-y-0 opacity-0 origin-top"
-                                >
+                                <Transition {...transitionProps}>
                                   {menuData.pm25 != null && (
                                     <Disclosure.Panel
                                       className={classNames(
-                                        getQuality("pm25", menuData.pm25).color,
-                                        `border-2 rounded-lg p-2 text-sm`
+                                        getQuality("pm25", menuData.pm25).color
+                                          .border,
+                                        popoutClasses
                                       )}
                                     >
-                                      {
-                                        getQuality("pm25", menuData.pm25)
-                                          .message
-                                      }
+                                      <span className="">
+                                        {
+                                          getQuality("pm25", menuData.pm25)
+                                            .message
+                                        }
+                                      </span>
+                                      <div className="flex flex-row h-full justify-end items-center">
+                                        <div
+                                          className={classNames(
+                                            getQuality("pm25", menuData.pm25)
+                                              .color.indicator,
+                                            "h-5 rounded-md aspect-square"
+                                          )}
+                                        />
+                                      </div>
                                     </Disclosure.Panel>
                                   )}
                                 </Transition>
@@ -895,26 +1198,30 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                                     </div>
                                   </div>
                                 </Disclosure.Button>
-                                <Transition
-                                  as={Fragment}
-                                  enter="transition duration-500 ease-out"
-                                  enterFrom="scale-y-0 opacity-0 origin-top"
-                                  enterTo="scale-y-100 opacity-100 origin-top"
-                                  leave="transition duration-500 ease-out"
-                                  leaveFrom="scale-y-100 opacity-100 origin-top"
-                                  leaveTo="scale-y-0 opacity-0 origin-top"
-                                >
+                                <Transition {...transitionProps}>
                                   {menuData.pm10 != null && (
                                     <Disclosure.Panel
                                       className={classNames(
-                                        getQuality("pm10", menuData.pm10).color,
-                                        `border-2 rounded-lg p-2 text-sm`
+                                        getQuality("pm10", menuData.pm10).color
+                                          .border,
+                                        popoutClasses
                                       )}
                                     >
-                                      {
-                                        getQuality("pm10", menuData.pm10)
-                                          .message
-                                      }
+                                      <span className="">
+                                        {
+                                          getQuality("pm10", menuData.pm10)
+                                            .message
+                                        }
+                                      </span>
+                                      <div className="flex flex-row h-full justify-end items-center">
+                                        <div
+                                          className={classNames(
+                                            getQuality("pm10", menuData.pm10)
+                                              .color.indicator,
+                                            "h-5 rounded-md aspect-square"
+                                          )}
+                                        />
+                                      </div>
                                     </Disclosure.Panel>
                                   )}
                                 </Transition>
@@ -941,23 +1248,30 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                                     </div>
                                   </div>
                                 </Disclosure.Button>
-                                <Transition
-                                  as={Fragment}
-                                  enter="transition duration-500 ease-out"
-                                  enterFrom="scale-y-0 opacity-0 origin-top"
-                                  enterTo="scale-y-100 opacity-100 origin-top"
-                                  leave="transition duration-500 ease-out"
-                                  leaveFrom="scale-y-100 opacity-100 origin-top"
-                                  leaveTo="scale-y-0 opacity-0 origin-top"
-                                >
+                                <Transition {...transitionProps}>
                                   {menuData.co2 != null && (
                                     <Disclosure.Panel
                                       className={classNames(
-                                        getQuality("co2", menuData.co2).color,
-                                        `border-2 rounded-lg p-2 text-sm`
+                                        getQuality("co2", menuData.co2).color
+                                          .border,
+                                        popoutClasses
                                       )}
                                     >
-                                      {getQuality("co2", menuData.co2).message}
+                                      <span className="">
+                                        {
+                                          getQuality("co2", menuData.co2)
+                                            .message
+                                        }
+                                      </span>
+                                      <div className="flex flex-row h-full justify-end items-center">
+                                        <div
+                                          className={classNames(
+                                            getQuality("co2", menuData.co2)
+                                              .color.indicator,
+                                            "h-5 rounded-md aspect-square"
+                                          )}
+                                        />
+                                      </div>
                                     </Disclosure.Panel>
                                   )}
                                 </Transition>

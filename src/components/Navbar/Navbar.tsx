@@ -72,7 +72,9 @@ function Navbar() {
                         icon={faLeaf}
                         className="h-8 w-auto text-green-600"
                       />
-                      <span className="text-lg font-semibold">WAGE Team</span>
+                      <span className="text-lg font-semibold">
+                        W.A.G.E. Team
+                      </span>
                     </div>
                   </Link>
                   <div className="hidden sm:block sm:ml-6 h-full">
