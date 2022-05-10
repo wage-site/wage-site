@@ -29,14 +29,14 @@ function Register() {
   const auth = getAuth();
   const db = getFirestore();
 
-  const { user } = useContext(AuthContext);
+  const { user, loading: userLoading } = useContext(AuthContext);
 
   const navigate = useNavigate();
   useEffect(() => {
-    if (user && !loading) {
+    if (user && !loading && !userLoading) {
       navigate("/user", { replace: true });
     }
-  }, [user, loading]);
+  }, [user, loading, navigate, userLoading]);
 
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
@@ -126,7 +126,7 @@ function Register() {
           setEmailErrText("Email already in use.");
         }
       }
-      if (errorCode != "") {
+      if (errorCode !== "") {
         setLoading(false);
         return;
       }
@@ -155,7 +155,7 @@ function Register() {
   }
 
   useEffect(() => {
-    if (email.trim() == "") {
+    if (email.trim() === "") {
       setEmailValid(true);
       setEmailErrText("");
       return;
@@ -170,7 +170,7 @@ function Register() {
   }, [email]);
 
   useEffect(() => {
-    if (password.trim() == "") {
+    if (password.trim() === "") {
       setPasswordValid(true);
       setPassswordErrText("");
       return;
@@ -190,7 +190,7 @@ function Register() {
   }, [token]);
 
   useEffect(() => {
-    if (username.trim() == "") {
+    if (username.trim() === "") {
       setUsernameValid(true);
       setUsernameErrText("");
       return;
@@ -205,7 +205,7 @@ function Register() {
   }, [username]);
 
   useEffect(() => {
-    if (name.trim() == "") {
+    if (name.trim() === "") {
       setNameValid(true);
       setNameErrText("");
       return;
@@ -234,7 +234,7 @@ function Register() {
               aria-autocomplete="none"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              onKeyDown={(e) => e.key == "Enter" && handleRegister()}
+              onKeyDown={(e) => e.key === "Enter" && handleRegister()}
               className={`peer placeholder-transparent h-10 w-full border-0 border-b-2 p-0 bg-transparent ${
                 nameValid
                   ? "border-gray-300 focus:border-lime-500"
@@ -259,7 +259,7 @@ function Register() {
                   : "text-red-700"
               } w-min text-xs sm:text-sm transition-all duration-200`}
             >
-              {nameErrText != "" && nameErrText}
+              {nameErrText !== "" && nameErrText}
             </label>
           </div>
           <div className="relative w-full">
@@ -272,7 +272,7 @@ function Register() {
               aria-autocomplete="none"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              onKeyDown={(e) => e.key == "Enter" && handleRegister()}
+              onKeyDown={(e) => e.key === "Enter" && handleRegister()}
               className={`peer placeholder-transparent h-10 w-full border-0 border-b-2 p-0 bg-transparent ${
                 usernameValid
                   ? "border-gray-300 focus:border-lime-500"
@@ -297,7 +297,7 @@ function Register() {
                   : "text-red-700"
               } w-min text-xs sm:text-sm transition-all duration-200`}
             >
-              {usernameErrText != "" && usernameErrText}
+              {usernameErrText !== "" && usernameErrText}
             </label>
           </div>
           <div className="relative w-full">
@@ -310,7 +310,7 @@ function Register() {
               aria-autocomplete="none"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              onKeyDown={(e) => e.key == "Enter" && handleRegister()}
+              onKeyDown={(e) => e.key === "Enter" && handleRegister()}
               className={`peer placeholder-transparent h-10 w-full border-0 border-b-2 p-0 bg-transparent ${
                 emailValid
                   ? "border-gray-300 focus:border-lime-500"
@@ -335,7 +335,7 @@ function Register() {
                   : "text-red-700"
               } w-min text-xs sm:text-sm transition-all duration-200`}
             >
-              {emailErrText != "" && emailErrText}
+              {emailErrText !== "" && emailErrText}
             </label>
           </div>
           <div className="relative w-full">
@@ -348,7 +348,7 @@ function Register() {
               aria-autocomplete="none"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key == "Enter" && handleRegister()}
+              onKeyDown={(e) => e.key === "Enter" && handleRegister()}
               className={`peer placeholder-transparent h-10 w-full border-0 border-b-2 p-0 bg-transparent ${
                 passwordValid
                   ? "border-gray-300 focus:border-lime-500"
@@ -373,7 +373,7 @@ function Register() {
                   : "text-red-700"
               } w-min text-xs sm:text-sm transition-all duration-200`}
             >
-              {passswordErrText != "" && passswordErrText}
+              {passswordErrText !== "" && passswordErrText}
             </label>
           </div>
           <div className="relative w-full">
@@ -386,7 +386,7 @@ function Register() {
               aria-autocomplete="none"
               value={token}
               onChange={(e) => setToken(e.target.value)}
-              onKeyDown={(e) => e.key == "Enter" && handleRegister()}
+              onKeyDown={(e) => e.key === "Enter" && handleRegister()}
               className={`peer placeholder-transparent h-10 w-full border-0 border-b-2 p-0 bg-transparent ${
                 tokenValid
                   ? "border-gray-300 focus:border-lime-500"
@@ -411,7 +411,7 @@ function Register() {
                   : "text-red-700"
               } w-min text-xs sm:text-sm transition-all duration-200`}
             >
-              {tokenErrText != "" && tokenErrText}
+              {tokenErrText !== "" && tokenErrText}
             </label>
           </div>
         </div>

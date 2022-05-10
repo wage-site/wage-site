@@ -25,14 +25,15 @@ function BlogEdit() {
   let params = useParams();
   let id = params.id;
 
-  const { user } = useContext(AuthContext);
+  const { user, loading: userLoading } = useContext(AuthContext);
 
   const navigate = useNavigate();
   useEffect(() => {
+    if (userLoading) return;
     if (!user) {
       navigate(`/blog/${id}`, { replace: true });
     }
-  }, [user]);
+  }, [user, id, navigate, userLoading]);
 
   const db = getFirestore();
 
@@ -52,14 +53,15 @@ function BlogEdit() {
       if (docSnap.exists()) {
         setPostData(docSnap.data() as BlogPost);
         setGlobalLoading(false);
-        if (docSnap.data().author != user?.uid)
+        if (userLoading) return;
+        if (docSnap.data().author !== user?.uid)
           navigate(`/blog/${id}`, { replace: true });
       } else {
         setGlobalLoading(false);
         setPostExists(false);
       }
     })();
-  }, [id]);
+  }, [id, navigate, user?.uid, db, userLoading]);
 
   useEffect(() => {
     if (!postData) return;
@@ -125,6 +127,8 @@ function BlogEdit() {
                 <img
                   src={postData.bannerUrl}
                   className={`h-full w-full absolute top-0 left-0 object-cover rounded-lg`}
+                  alt=""
+                  loading="lazy"
                 />
               </div>
               <input
@@ -147,6 +151,7 @@ function BlogEdit() {
                           <a
                             href="https://www.markdownguide.org/basic-syntax/"
                             target="_blank"
+                            rel="noopener noreferrer"
                             className="underline hover:text-gray-500 transition-all duration-200"
                           >
                             Markdown
@@ -190,6 +195,8 @@ function BlogEdit() {
                         <img
                           src={image}
                           className="w-full h-full absolute top-0 left-0 object-cover rounded-lg"
+                          alt=""
+                          loading="lazy"
                         />
                       </div>
                     ))}
@@ -203,7 +210,7 @@ function BlogEdit() {
                       ? "border-gray-400 text-gray-400"
                       : "border-lime-500 text-lime-500 hover:text-white hover:bg-lime-500"
                   } transition-all duration-200`}
-                  disabled={loading}
+                  disabled={loading || userLoading!}
                   onClick={() => {
                     handleSubmit();
                   }}

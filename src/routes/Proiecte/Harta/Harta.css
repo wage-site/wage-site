@@ -1,0 +1,55 @@
+.marker {
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+}
+
+.marker-map {
+  background-image: url("../../../../public/svg/Logo.svg");
+}
+
+.marker-good {
+  background-image: url("../../../../public/image/Logo.png");
+}
+
+.marker-moderate {
+  background-image: url("../../../../public/image/harta/moderate.png");
+}
+
+.marker-usg {
+  background-image: url("../../../../public/image/harta/usg.png");
+}
+
+.marker-unhealthy {
+  background-image: url("../../../../public/image/harta/unhealthy.png");
+}
+
+.mapboxgl-ctrl-logo,
+.mapboxgl-ctrl {
+  visibility: hidden !important;
+}
+
+#map-background,
+#map-container,
+#map-overlay,
+#content {
+  width: 100%;
+  min-height: 100%;
+  position: absolute;
+}
+#map-background {
+  z-index: -1;
+}
+#map-container {
+  z-index: 0;
+}
+#map-overlay {
+  z-index: 1;
+  background: none;
+}
+#content {
+  z-index: 0;
+}

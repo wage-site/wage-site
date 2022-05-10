@@ -35,10 +35,10 @@ function Login() {
         navigate("/user");
       }
     });
-  }, [auth.currentUser]);
+  }, [auth.currentUser, loading, navigate, auth]);
 
   useEffect(() => {
-    if (email.trim() == "") {
+    if (email.trim() === "") {
       setEmailValid(true);
       setEmailErrText("");
       return;
@@ -106,7 +106,7 @@ function Login() {
               placeholder="Email"
               autoComplete="off"
               aria-autocomplete="none"
-              onKeyDown={(e) => e.key == "Enter" && handleLogin()}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className={`peer placeholder-transparent h-10 w-full border-0 border-b-2 p-0 bg-transparent ${
@@ -133,7 +133,7 @@ function Login() {
                   : "text-red-700"
               } w-min text-xs sm:text-sm transition-all duration-200`}
             >
-              {emailErrText != "" && emailErrText}
+              {emailErrText !== "" && emailErrText}
             </label>
           </div>
           <div className="relative w-full">
@@ -146,7 +146,7 @@ function Login() {
               aria-autocomplete="none"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key == "Enter" && handleLogin()}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
               className={`peer placeholder-transparent h-10 w-full border-0 border-b-2 p-0 bg-transparent ${
                 passwordValid
                   ? "border-gray-300 focus:border-lime-500"
@@ -171,7 +171,7 @@ function Login() {
                   : "text-red-700"
               } w-min text-xs sm:text-sm transition-all duration-200`}
             >
-              {passswordErrText != "" && passswordErrText}
+              {passswordErrText !== "" && passswordErrText}
             </label>
           </div>
         </div>

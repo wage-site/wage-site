@@ -5,13 +5,13 @@ import useDocumentTitle from "../../lib/hooks/useDocumentTitle";
 
 function User() {
   useDocumentTitle("Profil");
-  const { user } = useContext(AuthContext);
+  const { user, loading: userLoading } = useContext(AuthContext);
   const navigate = useNavigate();
   useEffect(() => {
-    if (!user) {
+    if (!user && !userLoading) {
       navigate("/user/login", { replace: true });
     }
-  }, [user]);
+  }, [user, navigate, userLoading]);
 
   return <div>Logged in as {user?.displayName}</div>;
 }

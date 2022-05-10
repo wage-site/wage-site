@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   collection,
   getDocs,
@@ -98,7 +99,7 @@ export function BlogProvider({
       forceUpdate();
     });
 
-    if (pagePsts.length == 0) {
+    if (pagePsts.length === 0) {
       setMorePosts(false);
       forceUpdate();
       setMoreLoading(false);
@@ -171,7 +172,7 @@ export function BlogProvider({
     })().then((unsub) => {
       return unsub;
     });
-  }, []);
+  }, [db]);
 
   return (
     <BlogContext.Provider
