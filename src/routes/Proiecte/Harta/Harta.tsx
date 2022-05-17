@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   faFacebookSquare,
-  faInstagram,
+  faInstagram
 } from "@fortawesome/free-brands-svg-icons";
 import {
   faArrowRightToBracket,
   faBook,
   faCircleNotch,
   faCircleXmark,
-  faRssSquare,
+  faRssSquare
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Disclosure, Transition } from "@headlessui/react";
@@ -25,7 +25,7 @@ import {
   useCallback,
   useEffect,
   useRef,
-  useState,
+  useState
 } from "react";
 import { Line } from "react-chartjs-2";
 import { Link } from "react-router-dom";
@@ -899,7 +899,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             )}
                           </Disclosure>
                         )}
-                        {menuData.pm1 != null && (
+                        {menuData.pm1 !== null && (
                           <Disclosure>
                             {({ open }) => (
                               <>
@@ -949,7 +949,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             )}
                           </Disclosure>
                         )}
-                        {menuData.pm25 != null && (
+                        {menuData.pm25 !== null && (
                           <Disclosure>
                             {({ open }) => (
                               <>
@@ -999,7 +999,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             )}
                           </Disclosure>
                         )}
-                        {menuData.pm10 != null && (
+                        {menuData.pm10 !== null && (
                           <Disclosure>
                             {({ open }) => (
                               <>
@@ -1049,7 +1049,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             )}
                           </Disclosure>
                         )}
-                        {menuData.co2 != null && (
+                        {menuData.co2 !== null && (
                           <Disclosure>
                             {({ open }) => (
                               <>
@@ -1113,7 +1113,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             </div>
                           </div>
                         )}
-                        {menuData.humidity != null && (
+                        {menuData.humidity !== null && (
                           <div className="grid grid-cols-2 grid-rows-1 w-full">
                             <div className="flex flex-row justify-start text-xl">
                               Umiditate
