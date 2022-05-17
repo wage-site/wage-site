@@ -2,7 +2,6 @@ import {
   faArrowDown,
   faArrowRight,
   faCircleNotch,
-  faCirclePlus,
   faCircleXmark,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -10,32 +9,17 @@ import _ from "lodash";
 import { useContext } from "react";
 import { Link } from "react-router-dom";
 import Sidebar from "../../components/Blog/Sidebar";
-import { AuthContext } from "../../context/Auth";
 import { BlogContext } from "../../context/Blog";
 import useDocumentTitle from "../../lib/hooks/useDocumentTitle";
 
 function Blog() {
-  const { user } = useContext(AuthContext);
-
   useDocumentTitle("Blog");
 
   const { pagePosts, loading, nextBatch, moreLoading, morePosts } =
     useContext(BlogContext);
 
   return (
-    <div className="h-full w-full p-4 scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-300 overflow-y-auto overflow-x-hidden flex flex-col space-y-4 justify-start items-center bg-white">
-      <div className="w-full max-w-6xl flex flex-row justify-between items-center">
-        <span className="font-bold text-2xl">Blog</span>
-        {user && (
-          <Link
-            to="new"
-            className="flex flex-row justify-center items-center space-x-2 bg-gray-200 hover:bg-gray-300 transition-all duration-200 py-2 px-4 rounded-lg w-fit"
-          >
-            <FontAwesomeIcon icon={faCirclePlus} />
-            <span>Creeaza un articol nou</span>
-          </Link>
-        )}
-      </div>
+    <div className="w-full p-4 flex flex-col space-y-4 justify-start items-center">
       <div className="w-full max-w-6xl grid grid-cols-2 md:grid-cols-3 grid-rows-1 space-x-4 justify-between rounded-lg">
         <div className="flex flex-col col-span-2 space-y-2 bg-gray-50 p-4 rounded-lg shadow-md">
           {loading ? (
@@ -52,7 +36,7 @@ function Blog() {
                 <img
                   src={`${pagePosts.at(0)?.bannerUrl}`}
                   className="absolute top-0 left-0 h-full w-full object-cover z-10 opacity-30 group-hover:opacity-20 transition-all duration-200 rounded-lg"
-                  alt="Image"
+                  alt=""
                 />
                 <div className="opacity-100 group-hover:opacity-0 transition-all duration-200 absolute top-0 left-0 h-full w-full rounded-lg z-20 flex flex-col justify-center items-center space-y-1">
                   <div className="text-2xl font-semibold w-full text-center px-4 truncate">
@@ -77,6 +61,8 @@ function Blog() {
                       <img
                         src={post.bannerUrl}
                         className="absolute top-0 left-0 rounded-l-lg h-full w-full object-cover"
+                        alt=""
+                        loading="lazy"
                       />
                       <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute top-0 left-0 rounded-l-lg h-full w-full text-white bg-black bg-opacity-50 flex flex-row justify-center items-center space-x-2">
                         <FontAwesomeIcon icon={faArrowRight} />

@@ -2,7 +2,6 @@ import {
   faArrowRight,
   faArrowRightFromBracket,
   faCircleUser,
-  faLeaf,
   faUser,
   faUserGear,
 } from "@fortawesome/free-solid-svg-icons";
@@ -45,10 +44,13 @@ function Navbar() {
   ];
 
   return (
-    <Disclosure as="nav" className="space-y-2 shadow-md shadow-neutral-200">
+    <Disclosure
+      as="nav"
+      className="sticky top-0 z-[100] flex flex-row justify-center items-center w-full space-y-2 shadow-md bg-white"
+    >
       {({ open }) => (
         <>
-          <div className="w-full px-2 sm:px-6 lg:px-8 bg-white">
+          <div className="w-full max-w-6xl px-2 sm:px-6 lg:px-8 ">
             <div className="relative flex items-center justify-between h-16">
               <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
                 <Disclosure.Button className="inline-flex items-center justify-center p-2 rounded-md text-gray-400 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white hover:bg-gray-100 transition-all duration-200">
@@ -63,14 +65,19 @@ function Navbar() {
               <div className="flex-1 flex items-center justify-center sm:justify-between h-full">
                 <div className="flex items-center justify-start h-full">
                   <Link to="/" className="flex-shrink-0 flex items-center">
-                    <FontAwesomeIcon
-                      icon={faLeaf}
-                      className="block lg:hidden h-8 w-auto text-green-600"
+                    <span className="sr-only">Home</span>
+                    <img
+                      src="/svg/LogoSquare.svg"
+                      className="block lg:hidden h-10 w-auto text-green-600"
+                      alt=""
+                      loading="lazy"
                     />
                     <div className="flex-row justify-center items-center hidden lg:flex space-x-4">
-                      <FontAwesomeIcon
-                        icon={faLeaf}
-                        className="h-8 w-auto text-green-600"
+                      <img
+                        src="/svg/LogoSquare.svg"
+                        className="h-9 w-auto text-green-600"
+                        alt=""
+                        loading="lazy"
                       />
                       <span className="text-lg font-semibold">
                         W.A.G.E. Team
@@ -132,6 +139,8 @@ function Navbar() {
                                             <img
                                               src={proiect.image}
                                               className="absolute top-0 left-0 w-full h-full object-cover rounded-t-lg"
+                                              alt=""
+                                              loading="lazy"
                                             />
                                             <div className="opacity-0 group-hover:opacity-100 transition-all duration-200 absolute w-full h-full top-0 left-0 bg-black bg-opacity-70 flex flex-row justify-center items-center space-x-2 rounded-t-lg text-white">
                                               <span>Vezi Proiectul</span>
@@ -229,6 +238,7 @@ function Navbar() {
                   >
                     <div>
                       <Menu.Button className="flex flex-col justify-center items-center">
+                        <span className="sr-only">User Menu</span>
                         <FontAwesomeIcon
                           icon={faCircleUser}
                           className="rounded-full h-6 w-6 text-gray-300 hover:text-green-500 transition-all duration-200"
@@ -290,6 +300,7 @@ function Navbar() {
                 >
                   <div>
                     <Menu.Button className="flex flex-col justify-center items-center">
+                      <span className="sr-only">User Menu</span>
                       <FontAwesomeIcon
                         icon={faCircleUser}
                         className="rounded-full h-6 w-6 text-gray-300 hover:text-green-500 transition-all duration-200"
@@ -306,6 +317,14 @@ function Navbar() {
                     leaveTo="transform opacity-0 scale-95"
                   >
                     <Menu.Items className="absolute right-0 w-56 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+                      <div className="p-3 space-y-0.5 flex flex-col justify-center items-start">
+                        <div className="font-base text-sm">
+                          {user.displayName}
+                        </div>
+                        <div className="font-light text-xs opacity-50">
+                          @{userDb?.username}
+                        </div>
+                      </div>
                       <div className="px-1 py-1 space-y-0.5 flex flex-col justify-center items-center">
                         <Link
                           to="/user"
@@ -347,7 +366,7 @@ function Navbar() {
             leaveTo="transform opacity-0 scale-95"
             as={Fragment}
           >
-            <Disclosure.Panel className="z-50 sm:hidden bg-white shadow-sm m-2 py-1 px-0.5 rounded-lg absolute w-[calc(100%-1rem)]">
+            <Disclosure.Panel className="z-50 sm:hidden bg-white shadow-sm m-2 py-1 px-0.5 rounded-lg absolute top-16 w-[calc(100%-1rem)]">
               <div className="p-2 space-y-1">
                 {navigation.map((item) => (
                   <Disclosure.Button

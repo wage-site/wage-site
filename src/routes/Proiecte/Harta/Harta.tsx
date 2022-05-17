@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import {
   faFacebookSquare,
   faInstagram,
@@ -28,13 +29,13 @@ import {
 } from "react";
 import { Line } from "react-chartjs-2";
 import { Link } from "react-router-dom";
-import hB from "../../../assets/svg/hartaBanner.svg";
 import Wagepedia from "../../../components/Harta/Wagepedia";
 import { calcApprox, getUnit } from "../../../lib/harta/sensorUtils";
 import useDocumentTitle from "../../../lib/hooks/useDocumentTitle";
 import useEventListener from "../../../lib/hooks/useEventListener";
+import usePathCondition from "../../../lib/hooks/usePathCondition";
 import useWindowSize from "../../../lib/hooks/useWindowSize";
-import "./Harta.scss";
+import "./Harta.css";
 
 ChartJS.register(...registerables, zoomPlugin);
 
@@ -45,8 +46,9 @@ mapboxgl.accessToken =
   "pk.eyJ1IjoiZWR5Z3V5IiwiYSI6ImNrbDNoZzB0ZjA0anoydm13ejJ2ZnI1bTUifQ.IAGnqkUNAZULY6QbYCSS7w";
 
 function Harta({ backButton = true }: { backButton?: boolean }) {
-  if (backButton) useDocumentTitle("Harta");
-  else useDocumentTitle("");
+  usePathCondition();
+
+  useDocumentTitle(backButton ? "Harta" : "");
 
   const [easeTo, setEaseTo] = useState<"campulung" | "targoviste">("campulung");
   const [easeToCoords, setEaseToCoords] = useState<[number, number]>([
@@ -56,9 +58,9 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
   const [easeToMessage, setEaseToMessage] = useState(false);
 
   useEventListener("keydown", ({ key }) => {
-    if (key == "1") {
+    if (key === "1") {
       setEaseTo("campulung");
-    } else if (key == "2") {
+    } else if (key === "2") {
       setEaseTo("targoviste");
     } else {
       return;
@@ -68,11 +70,11 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
   useEffect(() => {
     setEaseToMessage(true);
     setEaseToCoords(
-      easeTo == "campulung" ? [25.045456, 45.268469] : [25.4517, 44.928912]
+      easeTo === "campulung" ? [25.045456, 45.268469] : [25.4517, 44.928912]
     );
     map.current?.easeTo({
       center:
-        easeTo == "campulung" ? [25.045456, 45.268469] : [25.4517, 44.928912],
+        easeTo === "campulung" ? [25.045456, 45.268469] : [25.4517, 44.928912],
       zoom: 12,
       duration: 1000,
     });
@@ -80,7 +82,6 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
 
   useEffect(() => {
     const timeId = setTimeout(() => {
-      // After 3 seconds set the show value to false
       setEaseToMessage(false);
     }, 1000);
 
@@ -155,7 +156,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
       url: `https://data.uradmonitor.com/api/v1/devices/userid/${userid}`,
       responseType: "json",
     }).then((data) => {
-      if (Object.keys(data)[0] == "error") {
+      if (Object.keys(data)[0] === "error") {
         console.error("Error occured!");
       } else {
         let sensorArray: AJAXSensor[] = data.data;
@@ -192,18 +193,18 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
     forceUpdate();
   }, [sensors]);
 
-  useEffect(() => {
-    if (selectedMenu == "wagepedia" || selectedMenu == "socials") return;
-    else if (selectedMenu == "") {
+  function getMenu(updateLoading: boolean = true) {
+    if (selectedMenu === "wagepedia" || selectedMenu === "socials") return;
+    else if (selectedMenu === "") {
       setMenuData(undefined);
       setGraphData(undefined);
     } else {
-      setLoading(true);
+      if (updateLoading) setLoading(true);
       let sensorId: string = "";
       let sensorCoords;
       let sensorPicture: string;
-      sensors.map((sensor) => {
-        if (sensor.name == selectedMenu) {
+      sensors.forEach((sensor) => {
+        if (sensor.name === selectedMenu) {
           sensorId = sensor.id;
           sensorCoords = sensor.coords;
           sensorPicture = sensor.picture;
@@ -260,21 +261,21 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
           picture: sensorPicture,
           co2: co2,
         });
-        setLoading(false);
+        if (updateLoading) setLoading(false);
       });
     }
-  }, [selectedMenu]);
+  }
 
-  useEffect(() => {
+  function getGraph() {
     if (
-      selectedMenu == "wagepedia" ||
-      selectedMenu == "" ||
-      selectedMenu == "socials"
+      selectedMenu === "wagepedia" ||
+      selectedMenu === "" ||
+      selectedMenu === "socials"
     )
       return;
     let sensorId: string = "";
-    sensors.map((sensor) => {
-      if (sensor.name == selectedMenu) {
+    sensors.forEach((sensor) => {
+      if (sensor.name === selectedMenu) {
         sensorId = sensor.id;
       }
     });
@@ -308,7 +309,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
         co2Arr.push(time.co2);
         if (
           [time.pm1, time.pm10, time.pm25].filter((x) => {
-            return x != undefined;
+            return x !== undefined;
           }).length > 1
         )
           pmArr.push(calcApprox([time.pm1, time.pm10, time.pm25]));
@@ -320,7 +321,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
       };
       if (
         pm1Arr.filter((x) => {
-          return x != undefined;
+          return x !== undefined;
         }).length > 1
       )
         gD.datasets.push({
@@ -332,7 +333,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
         });
       if (
         pm25Arr.filter((x) => {
-          return x != undefined;
+          return x !== undefined;
         }).length > 1
       )
         gD.datasets.push({
@@ -344,7 +345,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
         });
       if (
         pm10Arr.filter((x) => {
-          return x != undefined;
+          return x !== undefined;
         }).length > 1
       )
         gD.datasets.push({
@@ -356,7 +357,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
         });
       if (
         pmArr.filter((x) => {
-          return x != undefined;
+          return x !== undefined;
         }).length > 1
       )
         gD.datasets.push({
@@ -368,7 +369,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
         });
       if (
         gas1Arr.filter((x) => {
-          return x != undefined;
+          return x !== undefined;
         }).length > 1
       )
         gD.datasets.push({
@@ -380,7 +381,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
         });
       if (
         co2Arr.filter((x) => {
-          return x != undefined;
+          return x !== undefined;
         }).length > 1
       )
         gD.datasets.push({
@@ -392,226 +393,32 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
         });
       if (
         timesArr.filter((x) => {
-          return x != undefined;
-        }).length > 1
-      )
-        gD.labels = timesArr;
-      setGraphData(gD);
-    });
-  }, [selectedMenu, graphTime]);
-
-  useEffect(() => {
-    if (!menuOpened) return;
-
-    const interval = setInterval(() => {
-      update();
-    }, 10000);
-
-    return () => clearInterval(interval);
-  }, [menuOpened, selectedMenu, graphTime]);
-
-  function update() {
-    if (selectedMenu == "wagepedia" || selectedMenu == "socials") return;
-    else if (selectedMenu == "") {
-      setMenuData(undefined);
-      setGraphData(undefined);
-    } else {
-      let sensorId: string = "";
-      let sensorCoords;
-      let sensorPicture: string;
-      sensors.map((sensor) => {
-        if (sensor.name == selectedMenu) {
-          sensorId = sensor.id;
-          sensorCoords = sensor.coords;
-          sensorPicture = sensor.picture;
-        }
-      });
-      map.current?.easeTo({
-        center: sensorCoords,
-        zoom: 16,
-        duration: 1000,
-      });
-      axios({
-        method: "GET",
-        url: `https://data.uradmonitor.com/api/v1/devices/${sensorId}/all`,
-        headers: {
-          "Content-Type": "text/plain",
-          "X-User-id": userid,
-          "X-User-hash": userkey,
-        },
-        responseType: "json",
-      }).then((data) => {
-        let {
-          gas1,
-          humidity,
-          temperature,
-          latitude,
-          longitude,
-          pressure,
-          time,
-          timelocal,
-          pm1,
-          pm10,
-          pm25,
-          co2,
-        } = data.data[data.data.length - 1];
-        let date = DateTime.fromSeconds(time).toLocaleString(
-          DateTime.TIME_SIMPLE
-        );
-        setMenuData({
-          name: selectedMenu,
-          gas1: gas1,
-          humidity: humidity,
-          temperature: temperature
-            ? parseInt(temperature.toString().substring(0, 4))
-            : null,
-          latitude: latitude ? latitude : null,
-          longitude: longitude ? longitude : null,
-          pressure: pressure ? pressure : null,
-          time: time ? time : null,
-          timelocal: timelocal ? timelocal : null,
-          pm1: pm1,
-          pm10: pm10,
-          pm25: pm25,
-          date: date,
-          picture: sensorPicture,
-          co2: co2,
-        });
-      });
-    }
-    if (
-      selectedMenu == "wagepedia" ||
-      selectedMenu == "" ||
-      selectedMenu == "socials"
-    )
-      return;
-    let sensorId: string = "";
-    sensors.map((sensor) => {
-      if (sensor.name == selectedMenu) {
-        sensorId = sensor.id;
-      }
-    });
-    let pm1Arr: number[] = [];
-    let pm10Arr: number[] = [];
-    let pm25Arr: number[] = [];
-    let pmArr: number[] = [];
-    let gas1Arr: number[] = [];
-    let co2Arr: number[] = [];
-    let timesArr: string[] = [];
-    axios({
-      method: "GET",
-      url: `https://data.uradmonitor.com/api/v1/devices/${sensorId}/all/${
-        graphTime * 3600
-      }`,
-      headers: {
-        "Content-Type": "text/plain",
-        "X-User-id": userid,
-        "X-User-hash": userkey,
-      },
-      responseType: "json",
-    }).then((data) => {
-      data.data?.forEach((time: AJAXSensorData) => {
-        let date = DateTime.fromSeconds(time.time).toLocaleString(
-          DateTime.TIME_SIMPLE
-        );
-        pm1Arr.push(time.pm1);
-        pm10Arr.push(time.pm10);
-        pm25Arr.push(time.pm25);
-        gas1Arr.push(time.gas1);
-        co2Arr.push(time.co2);
-        if (
-          [time.pm1, time.pm10, time.pm25].filter((x) => {
-            return x != undefined;
-          }).length > 1
-        )
-          pmArr.push(calcApprox([time.pm1, time.pm10, time.pm25]));
-        timesArr.push(date);
-      });
-      let gD: ChartData<"line", number[], string> = {
-        datasets: [],
-        labels: [],
-      };
-      if (
-        pm1Arr.filter((x) => {
-          return x != undefined;
-        }).length > 1
-      )
-        gD.datasets.push({
-          label: "PM1.0",
-          data: pm1Arr,
-          fill: false,
-          borderColor: "#16A34A",
-          tension: 0.1,
-        });
-      if (
-        pm25Arr.filter((x) => {
-          return x != undefined;
-        }).length > 1
-      )
-        gD.datasets.push({
-          label: "PM2.5",
-          data: pm25Arr,
-          fill: false,
-          borderColor: "#15803D",
-          tension: 0.1,
-        });
-      if (
-        pm10Arr.filter((x) => {
-          return x != undefined;
-        }).length > 1
-      )
-        gD.datasets.push({
-          label: "PM10",
-          data: pm10Arr,
-          fill: false,
-          borderColor: "#14532D",
-          tension: 0.1,
-        });
-      if (
-        pmArr.filter((x) => {
-          return x != undefined;
-        }).length > 1
-      )
-        gD.datasets.push({
-          label: "PM",
-          data: pmArr,
-          fill: false,
-          borderColor: "#22C55E",
-          tension: 0.1,
-        });
-      if (
-        gas1Arr.filter((x) => {
-          return x != undefined;
-        }).length > 1
-      )
-        gD.datasets.push({
-          label: "NO2",
-          data: gas1Arr,
-          fill: false,
-          borderColor: "#22C55E",
-          tension: 0.1,
-        });
-      if (
-        co2Arr.filter((x) => {
-          return x != undefined;
-        }).length > 1
-      )
-        gD.datasets.push({
-          label: "CO2",
-          data: co2Arr,
-          fill: false,
-          borderColor: "#22C55E",
-          tension: 0.1,
-        });
-      if (
-        timesArr.filter((x) => {
-          return x != undefined;
+          return x !== undefined;
         }).length > 1
       )
         gD.labels = timesArr;
       setGraphData(gD);
     });
   }
+
+  useEffect(() => {
+    getMenu();
+  }, [selectedMenu]);
+
+  useEffect(() => {
+    getGraph();
+  }, [selectedMenu, graphTime]);
+
+  useEffect(() => {
+    if (!menuOpened) return;
+
+    const interval = setInterval(() => {
+      getMenu(false);
+      getGraph();
+    }, 10000);
+
+    return () => clearInterval(interval);
+  }, [menuOpened, selectedMenu, graphTime]);
 
   function closeTab() {
     map.current?.easeTo({
@@ -665,6 +472,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
             color: { border: "border-black", indicator: "bg-black" },
             message: "Riscant pentru toate tipurile de persoane",
           };
+        break;
       }
       case "pm25": {
         if (value >= 0 && value < 12.0)
@@ -693,6 +501,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
             color: { border: "border-black", indicator: "bg-black" },
             message: "Riscant pentru toate tipurile de persoane",
           };
+        break;
       }
       case "pm10": {
         if (value >= 0 && value < 50)
@@ -721,6 +530,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
             color: { border: "border-black", indicator: "bg-black" },
             message: "Riscant pentru toate tipurile de persoane",
           };
+        break;
       }
       case "co2": {
         if (value >= 400 && value < 1000)
@@ -751,6 +561,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
             message:
               "Acest nivel este imediat dăunător din cauza lipsei de oxigen.",
           };
+        break;
       }
       case "no2": {
         if (value >= 0 && value < 50)
@@ -779,6 +590,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
             color: { border: "border-black", indicator: "bg-black" },
             message: "Riscant pentru toate tipurile de persoane",
           };
+        break;
       }
       default: {
         return {
@@ -787,6 +599,10 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
         };
       }
     }
+    return {
+      color: { border: "border-blue-500", indicator: "bg-blue-500" },
+      message: "Nu s-au inregistrat destule date!",
+    };
   }
 
   const transitionProps = {
@@ -826,7 +642,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
       >
         <div className="absolute top-0 left-0 w-full h-full flex flex-col justify-center items-center">
           <div className="flex flex-row items-center justify-center bg-gray-200 shadow-md rounded-full px-5 py-2">
-            Ease to {easeTo == "campulung" ? "Campulung" : "Targoviste"}
+            {easeTo === "campulung" ? "Campulung" : "Targoviste"}
           </div>
         </div>
       </Transition>
@@ -882,7 +698,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
           leaveFrom="-translate-x-0 opacity-100"
           leaveTo="-translate-x-64 opacity-0"
         >
-          {selectedMenu == "socials" ? (
+          {selectedMenu === "socials" ? (
             <div className="absolute bottom-0 sm:top-0 sm:bottom-auto left-0 m-2 flex flex-row sm:flex-col justify-between items-end sm:justify-start sm:items-start w-[calc(100%-1rem)] sm:space-y-2">
               <button
                 onClick={() => {
@@ -898,6 +714,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
               <a
                 href="https://instagram.com/wage_team_cndg"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="py-5 px-6 sm:py-4 sm:px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
               >
                 <FontAwesomeIcon icon={faInstagram} className="" />
@@ -905,12 +722,13 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
               <a
                 href="https://www.facebook.com/wageteam"
                 target="_blank"
+                rel="noopener noreferrer"
                 className="py-4 px-5 bg-slate-100 hover:bg-opacity-75 transition-all duration-300 rounded-full text-black"
               >
                 <FontAwesomeIcon icon={faFacebookSquare} />
               </a>
             </div>
-          ) : selectedMenu == "wagepedia" ? (
+          ) : selectedMenu === "wagepedia" ? (
             <div className="bg-slate-50 shadow-md h-full m-2 ml-2 rounded-lg flex flex-col z-50 md:w-[42rem] w-[calc(100%-1rem)] relative top-0 left-0">
               <div className="h-full w-full">
                 <Wagepedia
@@ -920,12 +738,12 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                 />
               </div>
             </div>
-          ) : selectedMenu == "" ? (
+          ) : selectedMenu === "" ? (
             <div
               className={`${
-                prevMenu == "wagepedia"
+                prevMenu === "wagepedia"
                   ? "bg-slate-50 shadow-md h-full m-2 ml-2 rounded-lg flex flex-col z-50 md:w-[42rem] w-[calc(100%-1rem)] relative top-0 left-0"
-                  : prevMenu == "socials"
+                  : prevMenu === "socials"
                   ? ""
                   : "bg-slate-50 shadow-md h-full m-2 ml-2 rounded-lg flex flex-col z-50 sm:w-96 w-[calc(100%-1rem)] relative top-0 left-0"
               }`}
@@ -945,8 +763,10 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                   <>
                     <div className="relative h-32">
                       <img
-                        src={hB}
+                        src="/svg/hartaBanner.svg"
+                        loading="lazy"
                         className="h-full object-cover w-full rounded-t-lg brightness-50 absolute top-0 left-0"
+                        alt=""
                       />
                       <div className="relative p-4 flex flex-col justify-between h-full space-y-5 sm:space-y-6">
                         <div className="flex flex-row justify-between items-center">
@@ -974,7 +794,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             menuData?.pm10,
                             menuData?.pm25,
                           ].filter((x) => {
-                            return x != undefined || x != null;
+                            return x !== undefined || x != null;
                           }).length > 1 ? (
                             <div className="flex flex-row h-full space-x-1">
                               <div
@@ -1023,7 +843,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col justify-between h-full p-4 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-200 space-y-3">
+                    <div className="flex flex-col justify-between h-full p-4 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-gray-100 scrollbar-thumb-gray-200 space-y-4">
                       <div className="flex flex-col space-y-2">
                         <div className="flex flex-row justify-center items-center w-full space-x-2">
                           <span className="mb-[2px]">Particule</span>
@@ -1279,7 +1099,6 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             )}
                           </Disclosure>
                         )}
-
                         <div className="flex flex-row justify-center items-center w-full space-x-2">
                           <span className="mb-[2px]">Altele</span>
                           <div className="w-full h-px bg-black opacity-25 rounded-full" />
@@ -1310,6 +1129,25 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                               data={graphData ? graphData : { datasets: [] }}
                               options={{
                                 maintainAspectRatio: false,
+                                responsive: true,
+                                scales: {
+                                  x: {
+                                    ticks: {
+                                      font: {
+                                        family:
+                                          "'Lato', 'Source Sans Pro', 'sans-serif'",
+                                      },
+                                    },
+                                  },
+                                  y: {
+                                    ticks: {
+                                      font: {
+                                        family:
+                                          "'Lato', 'Source Sans Pro', 'sans-serif'",
+                                      },
+                                    },
+                                  },
+                                },
                                 plugins: {
                                   zoom: {
                                     zoom: {
@@ -1325,6 +1163,20 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                                       mode: "x",
                                     },
                                   },
+                                  legend: {
+                                    labels: {
+                                      font: {
+                                        family:
+                                          "'Lato', 'Source Sans Pro', 'sans-serif'",
+                                      },
+                                    },
+                                  },
+                                  tooltip: {
+                                    bodyFont: {
+                                      family:
+                                        "'Lato', 'Source Sans Pro', 'sans-serif'",
+                                    },
+                                  },
                                 },
                               }}
                             />
@@ -1333,10 +1185,10 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             {graphTimes.map((time) => (
                               <button
                                 onClick={() => setGraphTime(time.value)}
-                                disabled={graphTime == time.value}
+                                disabled={graphTime === time.value}
                                 key={time.label}
                                 className={`${
-                                  graphTime == time.value
+                                  graphTime === time.value
                                     ? "ring-2 ring-green-600 bg-opacity-75"
                                     : "bg-opacity-50 hover:bg-opacity-75"
                                 } bg-gray-300 px-2.5 rounded-full transition-all duration-200`}
@@ -1348,7 +1200,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                         </div>
                       </div>
                       <div className="grid grid-cols-2 grid-rows-1 w-full">
-                        <div className="flex flex-row justify-start items-center text-xl">
+                        <div className="flex flex-row justify-start items-center text-xl space-x-2">
                           <span className="mb-[2px] text-xs opacity-50">
                             Ultima actualizare la {menuData.date}
                           </span>

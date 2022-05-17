@@ -42,7 +42,7 @@ function Button({
         <Link
           to={to}
           replace={replace}
-          className={cln(mainStyle, _.get(styles, type), className)}
+          className={cln(mainStyle, _.get(styles, type))}
         >
           {children}
         </Link>

@@ -1,11 +1,16 @@
 import { Outlet } from "react-router-dom";
+import Footer from "../../components/Footer";
 import Navbar from "../../components/Navbar";
+import usePathCondition from "../../lib/hooks/usePathCondition";
 
 function Main() {
+  usePathCondition();
+
   return (
-    <div className="h-full w-full flex flex-col bg-gray-100 font-custom">
+    <div id="main" className="w-full flex flex-col bg-white font-custom">
       <Navbar />
       <Outlet />
+      <Footer />
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import BG from "../../assets/svg/404bg.svg";
 import { Button } from "../../components/Button";
 import useDocumentTitle from "../../lib/hooks/useDocumentTitle";
 
@@ -7,7 +6,7 @@ function Page404() {
   return (
     <>
       <img
-        src={BG}
+        src="/svg/404bg.svg"
         alt=""
         className="-z-10 h-full w-full absolute object-cover opacity-50"
       />

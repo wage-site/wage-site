@@ -21,14 +21,14 @@ function BlogDelete() {
   let params = useParams();
   let id = params.id;
 
-  const { user } = useContext(AuthContext);
+  const { user, loading: userLoading } = useContext(AuthContext);
 
   const navigate = useNavigate();
   useEffect(() => {
-    if (!user) {
+    if (!user && !userLoading) {
       navigate(`blog/${id}`, { replace: true });
     }
-  }, [user]);
+  }, [user, id, navigate, userLoading]);
 
   const db = getFirestore();
 
@@ -39,14 +39,15 @@ function BlogDelete() {
       const docSnap = await getDoc(docRef);
       if (docSnap.exists()) {
         setGlobalLoading(false);
-        if (docSnap.data().author != user?.uid)
+        if (userLoading) return;
+        if (docSnap.data().author !== user?.uid)
           navigate(`/blog/${id}`, { replace: true });
       } else {
         setGlobalLoading(false);
         setPostExists(false);
       }
     })();
-  }, [id]);
+  }, [db, navigate, id, user?.uid, userLoading]);
 
   async function handleDelete() {
     setLoading(true);
@@ -78,7 +79,7 @@ function BlogDelete() {
               onClick={() => {
                 navigate(`/blog/${id}`, { replace: true });
               }}
-              disabled={loading}
+              disabled={loading || userLoading!}
             >
               Inapoi
             </button>

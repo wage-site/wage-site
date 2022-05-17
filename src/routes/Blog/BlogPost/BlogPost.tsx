@@ -3,6 +3,7 @@ import {
   faAngleRight,
   faCircleNotch,
   faCircleXmark,
+  faSquareCaretDown,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import _ from "lodash";
@@ -56,10 +57,10 @@ function BlogPostPage() {
       setPostData(post);
       setLoading(false);
     })();
-  }, [postId, postsLoading]);
+  }, [postId, postsLoading, posts]);
 
   useEffect(() => {
-    if (user && user.uid == postData?.author) {
+    if (user && user.uid === postData?.author) {
       setCanEdit(true);
     } else {
       setCanEdit(false);
@@ -81,9 +82,19 @@ function BlogPostPage() {
                 <img
                   src={postData?.bannerUrl}
                   className="w-full h-52 rounded-t-lg object-cover"
+                  alt=""
+                  loading="lazy"
                 />
                 <div className="h-full flex flex-col justify-start items-start space-y-2 p-4">
                   <div className="font-semibold text-xl inline-flex w-full space-x-2">
+                    {canEdit && (
+                      <div className="px-0.5 mt-px h-full flex flex-row justify-center items-center">
+                        <FontAwesomeIcon
+                          icon={faSquareCaretDown}
+                          className="aspect-square h-4"
+                        />
+                      </div>
+                    )}
                     <span className="text-base sm:text-xl w-full inline-block truncate">
                       {postData?.title}
                     </span>
@@ -121,6 +132,8 @@ function BlogPostPage() {
                       <img
                         src={image}
                         className="w-full h-full absolute top-0 left-0 object-cover rounded-lg"
+                        alt=""
+                        loading="lazy"
                       />
                     </div>
                   ))}

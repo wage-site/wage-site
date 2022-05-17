@@ -8,7 +8,8 @@ function useDocumentTitle(title: string, prevailOnUnmount = false) {
   const defaultTitle = useRef(document.title);
 
   useEffect(() => {
-    document.title = title != "" ? `W.A.G.E. Team - ${title}` : "W.A.G.E. Team";
+    document.title =
+      title !== "" ? `W.A.G.E. Team - ${title}` : "W.A.G.E. Team";
   }, [title]);
 
   useEffect(
@@ -17,7 +18,7 @@ function useDocumentTitle(title: string, prevailOnUnmount = false) {
         document.title = defaultTitle.current;
       }
     },
-    []
+    [prevailOnUnmount]
   );
 }
 

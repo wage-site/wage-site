@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 
-export default function (
+function useEventListener(
   eventName: string,
   handler: (...args: any) => any,
   element = window
@@ -37,3 +37,5 @@ export default function (
     [eventName, element] // Re-run if eventName or element changes
   );
 }
+
+export default useEventListener;

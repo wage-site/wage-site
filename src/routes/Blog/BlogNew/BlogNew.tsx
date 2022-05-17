@@ -7,6 +7,7 @@ import {
   faUpload,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import imageCompression from "browser-image-compression";
 import {
   addDoc,
   collection,
@@ -31,14 +32,14 @@ function BlogNew() {
   const db = getFirestore();
   const storage = getStorage();
 
-  const { user } = useContext(AuthContext);
+  const { user, loading: userLoading } = useContext(AuthContext);
 
   const navigate = useNavigate();
   useEffect(() => {
-    if (!user) {
+    if (!user && !userLoading) {
       navigate("/blog");
     }
-  }, [user]);
+  }, [user, navigate, userLoading]);
 
   const imagesInputRef = useRef<HTMLInputElement>();
   const [imgIKey, setImgIKey] = useState("");
@@ -80,13 +81,17 @@ function BlogNew() {
           .slice(0, 100)
           .join(" "),
       });
+      let compressedImage = await imageCompression(bannerImage, {
+        maxSizeMB: 1.5,
+        useWebWorker: true,
+      });
       const imgRef = ref(
         storage,
         `images/blog/${doc.id}/banner.${bannerImage.name.substring(
           bannerImage.name.lastIndexOf(".") + 1
         )}`
       );
-      await uploadBytes(imgRef, bannerImage);
+      await uploadBytes(imgRef, compressedImage);
       let url = await getDownloadURL(imgRef);
       await updateDoc(doc, {
         bannerUrl: url,
@@ -95,6 +100,10 @@ function BlogNew() {
         var imageUrls: string[] = [];
         for (let index = 0; index < images.length; index++) {
           let image = images[index];
+          let compressedImage = await imageCompression(image, {
+            maxSizeMB: 1,
+            useWebWorker: true,
+          });
           const imgRef = ref(
             storage,
             `images/blog/${doc.id}/image${index}.${image.name.substring(
@@ -102,7 +111,7 @@ function BlogNew() {
             )}`
           );
           await (async function () {
-            await uploadBytes(imgRef, image);
+            await uploadBytes(imgRef, compressedImage);
             let url = await getDownloadURL(imgRef);
             imageUrls.push(url);
           })();
@@ -135,7 +144,7 @@ function BlogNew() {
   function removeImage(index: number) {
     setImages(
       images?.filter((val, idx) => {
-        return idx != index;
+        return idx !== index;
       })
     );
   }
@@ -163,6 +172,8 @@ function BlogNew() {
               className={`h-full w-full absolute top-0 left-0 object-cover rounded-lg ${
                 !bannerImage ? "opacity-0" : ""
               }`}
+              alt=""
+              loading="lazy"
             />
             <label
               htmlFor="file-upload"
@@ -220,6 +231,7 @@ function BlogNew() {
                       <a
                         href="https://www.markdownguide.org/basic-syntax/"
                         target="_blank"
+                        rel="noopener noreferrer"
                         className="underline hover:text-gray-500 transition-all duration-200"
                       >
                         Markdown
@@ -289,6 +301,8 @@ function BlogNew() {
                     <img
                       src={URL.createObjectURL(image)}
                       className="w-full h-full absolute top-0 left-0 object-cover rounded-lg"
+                      alt=""
+                      loading="lazy"
                     />
                     <div className="absolute w-full h-full top-0 left-0 rounded-lg flex flex-col justify-center items-center bg-black bg-opacity-50 text-white opacity-0 group-hover:opacity-100 transition-all duration-200">
                       <FontAwesomeIcon icon={faCircleXmark} />
@@ -305,7 +319,7 @@ function BlogNew() {
                   ? "border-gray-400 text-gray-400"
                   : "border-lime-500 text-lime-500 hover:text-white hover:bg-lime-500"
               } transition-all duration-200`}
-              disabled={loading}
+              disabled={loading || userLoading!}
               onClick={() => {
                 handleSubmit();
               }}

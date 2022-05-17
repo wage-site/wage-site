@@ -51,7 +51,7 @@ export function calcApprox([...values]: Array<
   number | undefined | null
 >): number {
   let arr = values.filter((x) => {
-    return x != null || x != undefined;
+    return x != null || x !== undefined;
   });
   let sum = arr.reduce((total, x) => Number(total) + Number(x));
   let fin = Number(sum) / arr.length;

@@ -14,7 +14,7 @@ function Logout() {
         navigate("/user/login", { replace: true });
       }
     });
-  }, [auth.currentUser]);
+  }, [auth.currentUser, auth, navigate]);
 
   useEffect(() => {
     auth.signOut();
