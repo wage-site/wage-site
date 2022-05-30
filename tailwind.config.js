@@ -8,6 +8,9 @@ module.exports = {
       fontFamily: {
         custom: ["Lato", "Source Sans Pro", "sans-serif"],
       },
+      boxShadow: {
+        'sd-r': '10px 0 10px -7px #888',
+      }
     },
   },
   plugins: [require("@tailwindcss/typography"), require("tailwind-scrollbar")],
