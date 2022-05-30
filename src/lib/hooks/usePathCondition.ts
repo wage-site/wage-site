@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 
 const fullscreenLocations = [
   "/proiecte/harta",
@@ -10,11 +10,16 @@ const fullscreenLocations = [
   "/user",
 ];
 
-function usePathCondition() {
+function usePathCondition(all = false) {
   const location = useLocation();
+  const params = useParams();
 
   useEffect(() => {
-    if (fullscreenLocations.includes(window.location.pathname)) {
+    if (
+      fullscreenLocations.includes(window.location.pathname) ||
+      window.location.pathname === `/user/${params.id}` ||
+      all
+    ) {
       document.documentElement.classList.add(
         "h-full",
         "w-full",
@@ -39,7 +44,7 @@ function usePathCondition() {
         .getElementById("root")
         ?.classList.remove("h-full", "w-full", "overflow-hidden");
     }
-  }, [location.pathname]);
+  }, [location.pathname, params.id, all]);
 }
 
 export default usePathCondition;

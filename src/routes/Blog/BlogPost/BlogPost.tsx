@@ -75,7 +75,7 @@ function BlogPostPage() {
           <span>Se incarca...</span>
         </div>
       ) : postExists && postData ? (
-        <div className="h-full w-full p-4 scrollbar-thin scrollbar-track-gray-200 scrollbar-thumb-gray-300 overflow-y-auto overflow-x-hidden flex flex-col space-y-4 justify-start items-center">
+        <div className="h-full w-full p-4 flex flex-col space-y-4 justify-start items-center">
           <div className="w-full grid grid-cols-1 md:grid-cols-3 grid-rows-1 space-x-4 max-w-5xl">
             <div className="col-span-2 flex flex-col divide-y-[1px] divide-gray-200 w-full shadow-md bg-gray-50 rounded-lg">
               <div className="w-full">

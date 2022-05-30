@@ -1,14 +1,14 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import {
   faFacebookSquare,
-  faInstagram
+  faInstagram,
 } from "@fortawesome/free-brands-svg-icons";
 import {
   faArrowRightToBracket,
   faBook,
   faCircleNotch,
   faCircleXmark,
-  faRssSquare
+  faRssSquare,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Disclosure, Transition } from "@headlessui/react";
@@ -25,14 +25,13 @@ import {
   useCallback,
   useEffect,
   useRef,
-  useState
+  useState,
 } from "react";
 import { Line } from "react-chartjs-2";
 import { Link } from "react-router-dom";
 import Wagepedia from "../../../components/Harta/Wagepedia";
 import { calcApprox, getUnit } from "../../../lib/harta/sensorUtils";
 import useDocumentTitle from "../../../lib/hooks/useDocumentTitle";
-import useEventListener from "../../../lib/hooks/useEventListener";
 import usePathCondition from "../../../lib/hooks/usePathCondition";
 import useWindowSize from "../../../lib/hooks/useWindowSize";
 import "./Harta.css";
@@ -46,49 +45,14 @@ mapboxgl.accessToken =
   "pk.eyJ1IjoiZWR5Z3V5IiwiYSI6ImNrbDNoZzB0ZjA0anoydm13ejJ2ZnI1bTUifQ.IAGnqkUNAZULY6QbYCSS7w";
 
 function Harta({ backButton = true }: { backButton?: boolean }) {
-  usePathCondition();
+  usePathCondition(!backButton);
 
   useDocumentTitle(backButton ? "Harta" : "");
 
-  const [easeTo, setEaseTo] = useState<"campulung" | "targoviste">("campulung");
-  const [easeToCoords, setEaseToCoords] = useState<[number, number]>([
-    25.045456, 45.268469,
-  ]);
+  const [easeTo] = useState<"campulung" | "targoviste">("campulung");
+  const [easeToCoords] = useState<[number, number]>([25.045456, 45.268469]);
 
-  const [easeToMessage, setEaseToMessage] = useState(false);
-
-  useEventListener("keydown", ({ key }) => {
-    if (key === "1") {
-      setEaseTo("campulung");
-    } else if (key === "2") {
-      setEaseTo("targoviste");
-    } else {
-      return;
-    }
-  });
-
-  useEffect(() => {
-    setEaseToMessage(true);
-    setEaseToCoords(
-      easeTo === "campulung" ? [25.045456, 45.268469] : [25.4517, 44.928912]
-    );
-    map.current?.easeTo({
-      center:
-        easeTo === "campulung" ? [25.045456, 45.268469] : [25.4517, 44.928912],
-      zoom: 12,
-      duration: 1000,
-    });
-  }, [easeTo]);
-
-  useEffect(() => {
-    const timeId = setTimeout(() => {
-      setEaseToMessage(false);
-    }, 1000);
-
-    return () => {
-      clearTimeout(timeId);
-    };
-  }, [easeToMessage]);
+  const [easeToMessage] = useState(false);
 
   const size = useWindowSize();
 
@@ -166,7 +130,13 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
             id: sensor.id,
             name: sensor.note,
             coords: [Number(sensor.longitude), Number(sensor.latitude)],
-            active: Boolean(sensor.status),
+            active: ![
+              "Cartier Schei",
+              "Scoala Nanu Muscel",
+              "Scoala Gimnaziala Oprea Iorgulescu",
+              "Cartier Flamanda",
+              "Scoala Theodor Aman",
+            ].includes(sensor.note),
             picture: sensor.picture,
           });
         });
@@ -899,7 +869,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             )}
                           </Disclosure>
                         )}
-                        {menuData.pm1 !== null && (
+                        {menuData.pm1 != null && (
                           <Disclosure>
                             {({ open }) => (
                               <>
@@ -949,7 +919,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             )}
                           </Disclosure>
                         )}
-                        {menuData.pm25 !== null && (
+                        {menuData.pm25 != null && (
                           <Disclosure>
                             {({ open }) => (
                               <>
@@ -999,7 +969,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             )}
                           </Disclosure>
                         )}
-                        {menuData.pm10 !== null && (
+                        {menuData.pm10 != null && (
                           <Disclosure>
                             {({ open }) => (
                               <>
@@ -1049,7 +1019,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             )}
                           </Disclosure>
                         )}
-                        {menuData.co2 !== null && (
+                        {menuData.co2 != null && (
                           <Disclosure>
                             {({ open }) => (
                               <>
@@ -1113,7 +1083,7 @@ function Harta({ backButton = true }: { backButton?: boolean }) {
                             </div>
                           </div>
                         )}
-                        {menuData.humidity !== null && (
+                        {menuData.humidity != null && (
                           <div className="grid grid-cols-2 grid-rows-1 w-full">
                             <div className="flex flex-row justify-start text-xl">
                               Umiditate

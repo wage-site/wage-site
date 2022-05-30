@@ -26,8 +26,6 @@ const Logout = lazy(() => import("./routes/User/Logout"));
 const Register = lazy(() => import("./routes/User/Register"));
 const Settings = lazy(() => import("./routes/User/Settings"));
 
-let concurs: boolean = false;
-
 function App() {
   return (
     <AuthProvider>
@@ -72,6 +70,7 @@ function App() {
 
                 <Route path="/user">
                   <Route path="" element={<User />} />
+                  <Route path=":id" element={<User />} />
                   <Route path="login" element={<Login />} />
                   <Route path="logout" element={<Logout />} />
                   <Route path="register" element={<Register />} />
@@ -88,15 +87,4 @@ function App() {
   );
 }
 
-function HartaOnly() {
-  return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="*" element={<Page404 />} />
-        <Route path="/" element={<Harta backButton={false} />} />
-      </Routes>
-    </BrowserRouter>
-  );
-}
-
-export default concurs ? HartaOnly : App;
+export default App;

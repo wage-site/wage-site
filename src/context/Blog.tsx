@@ -8,6 +8,7 @@ import {
   orderBy,
   query,
   startAfter,
+  where,
 } from "firebase/firestore";
 import { DateTime } from "luxon";
 import { createContext, useCallback, useEffect, useState } from "react";
@@ -17,6 +18,11 @@ export const BlogContext = createContext<{
   posts: BlogPost[] | null;
   pagePosts: BlogPagePost[] | null;
   nextBatch: () => void;
+  allPosts: () => void;
+  userPosts: (id: string) => Promise<{
+    posts: BlogPost[];
+    pagePosts: BlogPagePost[];
+  }>;
   loading: boolean;
   moreLoading: boolean;
   morePosts: boolean;
@@ -24,6 +30,10 @@ export const BlogContext = createContext<{
   posts: null,
   pagePosts: null,
   nextBatch: () => {},
+  allPosts: () => {},
+  userPosts: async () => {
+    return { posts: [], pagePosts: [] };
+  },
   loading: true,
   moreLoading: false,
   morePosts: true,
@@ -46,6 +56,121 @@ export function BlogProvider({
   const forceUpdate = useCallback(() => updateState({}), []);
 
   const db = getFirestore();
+
+  async function userPosts(id: string): Promise<{
+    posts: BlogPost[];
+    pagePosts: BlogPagePost[];
+  }> {
+    const q = query(
+      collection(db, "blog"),
+      orderBy("dateUploaded", "desc"),
+      where("author", "==", id)
+    );
+    const querySnap = await getDocs(q);
+    let psts: BlogPost[] = [];
+    let pagePsts: BlogPagePost[] = [];
+    querySnap.forEach(async function (post) {
+      let {
+        author,
+        authorName,
+        title,
+        content,
+        dateUploaded,
+        bannerUrl,
+        imageUrls,
+        contentPreview,
+      } = post.data();
+      let date = DateTime.fromJSDate(dateUploaded.toDate()).toLocaleString(
+        DateTime.DATE_FULL
+      );
+      setLastKey(dateUploaded);
+      psts.push({
+        id: post.id,
+        author,
+        authorName,
+        title,
+        content,
+        contentPreview,
+        dateUploaded,
+        imageUrls,
+        bannerUrl,
+      });
+      pagePsts.push({
+        id: post.id,
+        author,
+        authorName,
+        title,
+        content,
+        contentPreview,
+        imageUrls,
+        dateUploaded: date,
+        bannerUrl,
+      });
+    });
+    return {
+      posts: psts,
+      pagePosts: pagePsts,
+    };
+  }
+
+  async function allPosts() {
+    if (!morePosts) return;
+    setMoreLoading(true);
+    const q = query(collection(db, "blog"), orderBy("dateUploaded", "desc"));
+    const querySnap = await getDocs(q);
+    let psts: BlogPost[] = [];
+    let pagePsts: BlogPagePost[] = [];
+    querySnap.forEach(async function (post) {
+      let {
+        author,
+        authorName,
+        title,
+        content,
+        dateUploaded,
+        bannerUrl,
+        imageUrls,
+        contentPreview,
+      } = post.data();
+      let date = DateTime.fromJSDate(dateUploaded.toDate()).toLocaleString(
+        DateTime.DATE_FULL
+      );
+      setLastKey(dateUploaded);
+      psts.push({
+        id: post.id,
+        author,
+        authorName,
+        title,
+        content,
+        contentPreview,
+        dateUploaded,
+        imageUrls,
+        bannerUrl,
+      });
+      pagePsts.push({
+        id: post.id,
+        author,
+        authorName,
+        title,
+        content,
+        contentPreview,
+        imageUrls,
+        dateUploaded: date,
+        bannerUrl,
+      });
+      forceUpdate();
+    });
+
+    if (pagePsts.length === 0) {
+      setMorePosts(false);
+      forceUpdate();
+      setMoreLoading(false);
+    } else {
+      setPosts(psts);
+      setPagePosts(pagePsts);
+      forceUpdate();
+      setMoreLoading(false);
+    }
+  }
 
   async function nextBatch() {
     if (!morePosts) return;
@@ -176,7 +301,16 @@ export function BlogProvider({
 
   return (
     <BlogContext.Provider
-      value={{ posts, pagePosts, loading, nextBatch, moreLoading, morePosts }}
+      value={{
+        posts,
+        pagePosts,
+        loading,
+        nextBatch,
+        allPosts,
+        userPosts,
+        moreLoading,
+        morePosts,
+      }}
     >
       {children}
     </BlogContext.Provider>
